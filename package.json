@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "type-check": "tsc -b --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky"
