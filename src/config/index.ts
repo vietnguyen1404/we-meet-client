@@ -1,2 +1,2 @@
 export { env } from './env';
-export { router } from './router';
+export { router } from './routes';
