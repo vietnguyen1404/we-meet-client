@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
-import { apiClient } from './client';
+import { httpClient } from './client';
 import type { AxiosRequestConfig } from 'axios';
 
 interface UseApiQueryOptions<TData> extends Omit<UseQueryOptions<TData>, 'queryKey' | 'queryFn'> {
@@ -23,7 +23,7 @@ export function useApiQuery<TData = unknown>(
   return useQuery<TData>({
     queryKey,
     queryFn: async () => {
-      const response = await apiClient.get<TData>(url, config);
+      const response = await httpClient.get<TData>(url, config);
       return response.data;
     },
     ...options,
@@ -38,7 +38,7 @@ export function useApiMutation<TData = unknown, TVariables = unknown>({
   return useMutation<TData, Error, TVariables>({
     mutationFn: async (variables) => {
       const endpoint = typeof url === 'function' ? url(variables) : url;
-      const response = await apiClient[method]<TData>(endpoint, variables);
+      const response = await httpClient[method]<TData>(endpoint, variables);
       return response.data;
     },
     ...options,

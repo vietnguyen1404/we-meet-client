@@ -194,8 +194,10 @@ type AuthenticatedUser = User & { token: string };
 | **Constants**          | UPPER_SNAKE_CASE             | `MAX_PARTICIPANTS`, `API_URL`  |
 | **Components**         | PascalCase                   | `MeetingRoom`, `LoginForm`     |
 | **Hooks**              | camelCase, `use` prefix      | `useAuth`, `useMeeting`        |
-| **Files (components)** | PascalCase                   | `MeetingRoom.tsx`              |
-| **Files (utils)**      | camelCase                    | `formatters.ts`                |
+| **Files (components)** | camelCase                    | `meetingRoom.tsx`, `loginForm.tsx` |
+| **Files (utils)**      | camelCase                    | `formatters.ts`, `validators.ts`                |
+| **Files (services)**   | camelCase                    | `authService.ts`, `meetingApi.ts` |
+| **Files (types)**      | camelCase, `.types` suffix   | `auth.types.ts`, `meeting.types.ts` |
 
 ---
 

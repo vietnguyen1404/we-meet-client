@@ -10,5 +10,11 @@
   "chat.promptFilesRecommendations": {
     "setup-greenfield": true,
     "setup-brownfield": true
+  },
+  "i18n-ally.localesPaths": ["src/lib/i18n", "src/lib/locales", "src/lib/i18n/locales"],
+  "css.validate": false,
+  "css.customData": [".vscode/tailwind.json"],
+  "files.associations": {
+    "*.css": "tailwindcss"
   }
 }
