@@ -1,2 +1,2 @@
-export { apiClient } from './client';
+export { httpClient, setAuthFunctions } from './client';
 export { useApiQuery, useApiMutation } from './hooks';

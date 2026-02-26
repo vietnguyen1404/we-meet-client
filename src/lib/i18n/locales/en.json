@@ -1,0 +1,26 @@
+{
+  "common": {
+    "appName": "VideoMeet",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "login": {
+    "title": "Log in to VideoMeet",
+    "subtitle": "Welcome back! Please enter your details.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "name@company.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create an account",
+    "orContinueWith": "Or continue with",
+    "google": "Continue with Google",
+    "microsoft": "Continue with Microsoft",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "helpCenter": "Help Center"
+  }
+}

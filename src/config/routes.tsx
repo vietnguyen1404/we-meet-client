@@ -1,9 +1,22 @@
-import { createBrowserRouter } from 'react-router-dom';
-import ExamplePage from '@/routes/ExamplePage';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { LoginPage, DashboardPage, ProtectedRoute } from '@/features/auth';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <ExamplePage />,
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/dashboard',
+        element: <DashboardPage />,
+      },
+    ],
   },
 ]);
