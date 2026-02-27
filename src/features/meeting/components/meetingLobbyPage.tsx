@@ -1,0 +1,236 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/features/auth';
+import { MEETING_ROLE } from '@/shared';
+import { Heading, Text, Button } from '@/components/ui';
+import { Header } from '@/components/layout/Header';
+import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
+import CopyIcon from '@/assets/icons/copy.svg?react';
+import SpinnerIcon from '@/assets/icons/spinner.svg?react';
+import { meetingsApi } from '../services/meetingService';
+import type { MeetingLobbyData, ApiError } from '../types/meeting.types';
+
+export const MeetingLobbyPage = () => {
+  const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [lobbyData, setLobbyData] = useState<MeetingLobbyData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchMeetingData = useCallback(async () => {
+    if (!id || !user) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const meeting = await meetingsApi.getMeeting(id);
+
+      const currentMember = meeting.members.find((member) => member.id === user.id);
+      const currentUserRole = currentMember?.role || MEETING_ROLE.PARTICIPANT;
+      const isHost = meeting.hostId === user.id;
+
+      setLobbyData({
+        meeting,
+        currentUserRole,
+        isHost,
+      });
+    } catch (err) {
+      const apiError = err as ApiError;
+
+      if (apiError.statusCode === 404) {
+        setError(t('meeting.lobby.errorNotFound'));
+      } else if (apiError.statusCode === 401 || apiError.statusCode === 403) {
+        setError(t('meeting.lobby.errorUnauthorized'));
+      } else {
+        setError(apiError.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, user, t]);
+
+  useEffect(() => {
+    if (!id) {
+      navigate('/meetings/start', { replace: true });
+      return;
+    }
+
+    fetchMeetingData();
+  }, [id, navigate, fetchMeetingData]);
+
+  const copyMeetingId = () => {
+    if (id) {
+      navigator.clipboard.writeText(id);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <SpinnerIcon className="animate-spin h-12 w-12 text-primary mx-auto mb-4" />
+          <Text className="text-gray-600">{t('meeting.lobby.loadingTitle')}</Text>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !lobbyData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 border border-gray-200">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangleIcon className="w-8 h-8 text-red-600" />
+            </div>
+            <Heading level={2} className="text-xl font-bold text-gray-900 mb-2">
+              {t('meeting.lobby.errorTitle')}
+            </Heading>
+            <Text className="text-gray-600 mb-6">{error || t('meeting.lobby.errorDefault')}</Text>
+            <Button onClick={() => navigate('/meetings/start')}>
+              {t('meeting.lobby.buttonBack')}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { meeting, currentUserRole, isHost } = lobbyData;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header
+        actions={
+          <Button variant="ghost" onClick={() => navigate('/meetings/start')}>
+            {t('meeting.lobby.buttonLeave')}
+          </Button>
+        }
+      >
+        <div className="flex-1 mx-6">
+          <Heading level={1} className="text-2xl font-bold text-gray-900">
+            {meeting.title}
+          </Heading>
+          <Text className="text-sm text-gray-500 mt-1">
+            {t('meeting.lobby.labelMeetingId')}: {id}
+          </Text>
+        </div>
+      </Header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <Heading level={2} className="text-lg font-semibold text-gray-900 mb-4">
+                {t('meeting.lobby.detailsTitle')}
+              </Heading>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Text as="span" className="text-sm text-gray-600">
+                    {t('meeting.lobby.labelMeetingId')}
+                  </Text>
+                  <div className="flex items-center gap-2">
+                    <code className="px-3 py-1 bg-gray-100 rounded text-sm font-mono">{id}</code>
+                    <button
+                      onClick={copyMeetingId}
+                      className="text-primary hover:text-primary/80 transition-colors"
+                      title={t('meeting.lobby.copyMeetingId')}
+                    >
+                      <CopyIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Text as="span" className="text-sm text-gray-600">
+                    {t('meeting.lobby.labelRole')}
+                  </Text>
+                  <Text
+                    as="span"
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      isHost ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {currentUserRole === MEETING_ROLE.HOST
+                      ? t('meeting.role.host')
+                      : t('meeting.role.participant')}
+                  </Text>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Text as="span" className="text-sm text-gray-600">
+                    {t('meeting.lobby.labelStatus')}
+                  </Text>
+                  <Text
+                    as="span"
+                    className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
+                  >
+                    {t(`meeting.status.${meeting.status}`)}
+                  </Text>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <Heading level={2} className="text-lg font-semibold text-gray-900 mb-4">
+                {t('meeting.lobby.comingSoonTitle')}
+              </Heading>
+              <Text className="text-gray-600">{t('meeting.lobby.comingSoonText')}</Text>
+            </div>
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <Heading level={2} className="text-lg font-semibold text-gray-900 mb-4">
+                {t('meeting.lobby.participantsTitle')} ({meeting.members.length})
+              </Heading>
+              <div className="space-y-3">
+                {meeting.members.length === 0 ? (
+                  <Text className="text-sm text-gray-500">
+                    {t('meeting.lobby.participantsEmpty')}
+                  </Text>
+                ) : (
+                  lobbyData.meeting.members.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Text as="span" className="text-primary font-medium">
+                            {member.userName?.charAt(0).toUpperCase() || '?'}
+                          </Text>
+                        </div>
+                        <div>
+                          <Text className="text-sm font-medium text-gray-900">
+                            {member.userName}
+                            {member.id === user?.id && (
+                              <Text as="span" className="ml-2 text-xs text-gray-500">
+                                {t('meeting.lobby.youLabel')}
+                              </Text>
+                            )}
+                          </Text>
+                        </div>
+                      </div>
+                      {member.role === MEETING_ROLE.HOST && (
+                        <Text
+                          as="span"
+                          className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
+                        >
+                          {t('meeting.role.host')}
+                        </Text>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};

@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query';
 import '@/lib/i18n/config';
 import './index.css';
+import './styles/global.scss';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(

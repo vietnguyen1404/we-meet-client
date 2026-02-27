@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { Heading, Text, Button } from '@/components/ui';
 import LogoIcon from '@/assets/icons/logo.svg?react';
 import EyeIcon from '@/assets/icons/eye.svg?react';
 import EyeOffIcon from '@/assets/icons/eye-off.svg?react';
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?react';
+import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 
 export const LoginPage = () => {
   const { t } = useTranslation();
@@ -25,10 +27,10 @@ export const LoginPage = () => {
 
     try {
       await login(email, password);
-      navigate('/dashboard', { replace: true });
+      navigate('/meetings/start', { replace: true });
     } catch (err) {
       console.error('Login failed:', err);
-      setError('Invalid email or password. Please try again.');
+      setError(t('login.errorInvalid'));
     } finally {
       setIsSubmitting(false);
     }
@@ -43,7 +45,9 @@ export const LoginPage = () => {
           <div className="inline-flex items-center justify-center mb-6">
             <LogoIcon className="w-12 h-12" />
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">{t('login.title')}</h1>
+          <Heading level={1} className="text-2xl font-semibold text-gray-900">
+            {t('login.title')}
+          </Heading>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -62,7 +66,7 @@ export const LoginPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('login.emailPlaceholder')}
                 required
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6764f2] focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               />
             </div>
 
@@ -74,10 +78,7 @@ export const LoginPage = () => {
                 >
                   {t('login.passwordLabel')}
                 </label>
-                <button
-                  type="button"
-                  className="text-xs text-[#6764f2] hover:underline font-medium"
-                >
+                <button type="button" className="text-xs text-primary hover:underline font-medium">
                   {t('login.forgotPassword')}
                 </button>
               </div>
@@ -89,13 +90,13 @@ export const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('login.passwordPlaceholder')}
                   required
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6764f2] focus:border-transparent transition-all pr-10"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
                 >
                   {showPassword ? (
                     <EyeIcon className="w-5 h-5" />
@@ -112,14 +113,10 @@ export const LoginPage = () => {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#6764f2] text-white font-medium py-3 rounded-lg hover:bg-[#5753d9] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" disabled={isLoading} size="lg" className="w-full">
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  <SpinnerIcon className="animate-spin w-4 h-4" />
                   {t('login.signingIn')}
                 </>
               ) : (
@@ -128,16 +125,16 @@ export const LoginPage = () => {
                   <ArrowRightIcon className="w-4 h-4" />
                 </>
               )}
-            </button>
+            </Button>
           </form>
         </div>
 
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <Text className="text-center text-sm text-gray-600 mt-6">
           {t('login.noAccount')}{' '}
-          <button className="text-[#6764f2] font-medium hover:underline">
+          <button className="text-primary font-medium hover:underline">
             {t('login.createAccount')}
           </button>
-        </p>
+        </Text>
 
         <div className="flex items-center justify-center gap-6 mt-12">
           <button className="text-xs text-gray-500 hover:text-gray-700 transition-colors">

@@ -1,10 +1,11 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage, DashboardPage, ProtectedRoute } from '@/features/auth';
+import { StartMeetingPage, MeetingLobbyPage } from '@/features/meeting';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/meetings/start" replace />,
   },
   {
     path: '/login',
@@ -16,6 +17,14 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <DashboardPage />,
+      },
+      {
+        path: '/meetings/start',
+        element: <StartMeetingPage />,
+      },
+      {
+        path: '/meetings/:id',
+        element: <MeetingLobbyPage />,
       },
     ],
   },

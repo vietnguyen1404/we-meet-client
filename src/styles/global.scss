@@ -1,0 +1,25 @@
+// ============================================
+// Global Styles
+// ============================================
+// Minimal global styles - components use Tailwind utilities directly
+
+@use 'variables' as *;
+
+// Ensure all interactive elements have pointer cursor
+button,
+[type='button'],
+[type='submit'],
+[role='button'] {
+  cursor: pointer;
+}
+
+// Accessibility: Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
