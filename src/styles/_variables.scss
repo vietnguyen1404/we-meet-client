@@ -1,0 +1,10 @@
+// ============================================
+// CSS Variables (Design Tokens)
+// ============================================
+// Only for custom values not in Tailwind's default palette
+// All other colors, spacing, shadows use Tailwind utilities
+
+:root {
+  // Custom Brand Color (not in Tailwind default palette)
+  --color-primary: #6764f2;
+}

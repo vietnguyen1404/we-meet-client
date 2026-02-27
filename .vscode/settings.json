@@ -16,5 +16,6 @@
   "css.customData": [".vscode/tailwind.json"],
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "i18n-ally.keystyle": "nested"
 }

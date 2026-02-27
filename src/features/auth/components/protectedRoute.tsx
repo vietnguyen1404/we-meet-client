@@ -1,5 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
+import { Text } from '@/components/ui';
+import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
@@ -7,13 +10,14 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6764f2] mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
+          <SpinnerIcon className="animate-spin h-12 w-12 text-primary mx-auto mb-4" />
+          <Text className="text-gray-600">{t('common.loading')}</Text>
         </div>
       </div>
     );

@@ -1,8 +1,10 @@
 {
   "common": {
-    "appName": "VideoMeet",
+    "appName": "We Meet",
     "loading": "Loading...",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "cancel": "Cancel",
+    "logout": "Logout"
   },
   "login": {
     "title": "Log in to VideoMeet",
@@ -21,6 +23,89 @@
     "microsoft": "Continue with Microsoft",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
-    "helpCenter": "Help Center"
+    "helpCenter": "Help Center",
+    "errorInvalid": "Invalid email or password. Please try again.",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password"
+  },
+  "dashboard": {
+    "welcomeTitle": "Welcome to Dashboard",
+    "welcomeMessage": "You are now authenticated and can access protected content.",
+    "userInfo": "User Information",
+    "labelId": "ID:",
+    "labelName": "Name:",
+    "labelEmail": "Email:"
+  },
+  "meeting": {
+    "start": {
+      "heroTitle": "Premium video meetings.\nNow free for everyone.",
+      "heroSubtitle": "We re-engineered the service we built for secure business meetings, We Meet, to make it free and available for all.",
+      "newMeeting": "New meeting",
+      "joinBtn": "Join",
+      "learnMore": "Learn more about We Meet",
+      "youLabel": "You",
+      "connectionLabel": "Connection is",
+      "e2eLabel": "End-to-end encrypted",
+      "copyright": "© 2026 We Meet Inc.",
+      "footerPrivacy": "Privacy",
+      "footerTerms": "Terms",
+      "footerSecurity": "Security",
+      "logout": "Logout",
+      "settings": "Settings",
+      "help": "Help"
+    },
+    "create": {
+      "title": "Create Meeting",
+      "subtitle": "Start a new meeting room",
+      "titleLabel": "Meeting Title (Optional)",
+      "titlePlaceholder": "e.g., Team Standup",
+      "titleHint": "Leave empty for auto-generated title",
+      "buttonCreate": "Create Meeting",
+      "buttonCreating": "Creating..."
+    },
+    "join": {
+      "title": "Join Meeting",
+      "subtitle": "Enter the meeting ID to join",
+      "idLabel": "Meeting ID",
+      "idPlaceholder": "Enter meeting ID",
+      "codePlaceholder": "Enter a code or link",
+      "idRequired": "*",
+      "idHint": "The meeting ID was provided by the meeting host",
+      "buttonJoin": "Join Meeting",
+      "buttonJoining": "Joining...",
+      "noMeetingId": "Don't have a meeting ID?",
+      "createNew": "Create a new meeting",
+      "errorRequired": "Please enter a meeting ID",
+      "errorNotFound": "Meeting not found. Please check the ID and try again.",
+      "errorAlreadyJoined": "You have already joined this meeting.",
+      "errorAuth": "Authentication required. Please log in again."
+    },
+    "lobby": {
+      "loadingTitle": "Loading meeting...",
+      "errorTitle": "Error",
+      "errorDefault": "Unable to load meeting",
+      "buttonBack": "Back to Dashboard",
+      "buttonLeave": "Leave",
+      "detailsTitle": "Meeting Details",
+      "labelMeetingId": "Meeting ID",
+      "labelRole": "Your Role",
+      "labelStatus": "Status",
+      "copyMeetingId": "Copy meeting ID",
+      "comingSoonTitle": "Meeting Room (Coming Soon)",
+      "comingSoonText": "Video chat and screen sharing will be available here.",
+      "participantsTitle": "Participants",
+      "participantsEmpty": "No participants yet",
+      "youLabel": "(You)",
+      "errorNotFound": "Meeting not found",
+      "errorUnauthorized": "You are not authorized to access this meeting"
+    },
+    "role": {
+      "host": "Host",
+      "participant": "Participant"
+    },
+    "status": {
+      "active": "ACTIVE",
+      "ended": "ENDED"
+    }
   }
 }

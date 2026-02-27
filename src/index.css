@@ -1,27 +1,2 @@
 @import 'tailwindcss';
-
-@layer base {
-  /* Global base styles that extend Tailwind */
-  button,
-  [type='button'],
-  [type='submit'],
-  [role='button'] {
-    cursor: pointer;
-  }
-
-  /* Custom focus styles */
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-blue-500;
-  }
-}
-
-/* Respect user preference for reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+@config '../tailwind.config.js';
