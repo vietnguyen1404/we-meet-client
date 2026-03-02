@@ -34,6 +34,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Keep a ref in sync with the latest accessToken so the getter passed to
+  // setAuthFunctions is always stable (avoids re-registering on every token
+  // rotation) — rerender-use-ref-transient-values
+  const accessTokenRef = useRef<string | null>(null);
+  accessTokenRef.current = accessToken;
+
   const didInit = useRef(false);
 
   const refreshToken = useCallback(async (): Promise<string> => {
@@ -61,14 +67,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     setAuthFunctions(
-      () => accessToken,
+      // Read from ref — always returns latest token without closing over state
+      () => accessTokenRef.current,
       refreshToken,
       () => {
         setAccessToken(null);
         setUser(null);
       },
     );
-  }, [accessToken, refreshToken]);
+    // refreshToken is stable (useCallback with []); ref reads latest token so
+    // accessToken is intentionally excluded — rerender-dependencies
+  }, [refreshToken]);
 
   useEffect(() => {
     if (didInit.current) return;

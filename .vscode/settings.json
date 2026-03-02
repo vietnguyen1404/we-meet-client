@@ -17,5 +17,7 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
-  "i18n-ally.keystyle": "nested"
+  "i18n-ally.keystyle": "nested",
+  "chat.useAgentSkills": true,
+  "chat.useNestedAgentsMdFiles": true
 }

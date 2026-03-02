@@ -34,7 +34,7 @@ export const Header = ({ variant = 'solid', actions, children }: HeaderProps) =>
 
       {children}
 
-      {actions && <div className="flex items-center gap-3">{actions}</div>}
+      {actions ? <div className="flex items-center gap-3">{actions}</div> : null}
     </header>
   );
 };

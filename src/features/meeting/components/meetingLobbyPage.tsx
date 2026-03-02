@@ -16,13 +16,15 @@ export const MeetingLobbyPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  // Use primitive userId as effect dependency to avoid re-fetching on object reference changes (rerender-dependencies)
+  const userId = user?.id;
 
   const [lobbyData, setLobbyData] = useState<MeetingLobbyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchMeetingData = useCallback(async () => {
-    if (!id || !user) return;
+    if (!id || !userId) return;
 
     setIsLoading(true);
     setError(null);
@@ -30,9 +32,9 @@ export const MeetingLobbyPage = () => {
     try {
       const meeting = await meetingsApi.getMeeting(id);
 
-      const currentMember = meeting.members.find((member) => member.id === user.id);
+      const currentMember = meeting.members.find((member) => member.id === userId);
       const currentUserRole = currentMember?.role || MEETING_ROLE.PARTICIPANT;
-      const isHost = meeting.hostId === user.id;
+      const isHost = meeting.hostId === userId;
 
       setLobbyData({
         meeting,
@@ -52,7 +54,7 @@ export const MeetingLobbyPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [id, user, t]);
+  }, [id, userId, t]);
 
   useEffect(() => {
     if (!id) {
@@ -64,9 +66,8 @@ export const MeetingLobbyPage = () => {
   }, [id, navigate, fetchMeetingData]);
 
   const copyMeetingId = () => {
-    if (id) {
-      navigator.clipboard.writeText(id);
-    }
+    if (!id) return;
+    navigator.clipboard.writeText(id);
   };
 
   if (isLoading) {
