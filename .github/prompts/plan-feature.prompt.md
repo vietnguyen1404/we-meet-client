@@ -6,6 +6,7 @@ tools:
   - web/githubRepo
   - read
   - search
+  - stitch
 argument-hint: <issue number, issue URL, or paste issue content>
 ---
 
@@ -43,6 +44,54 @@ Extract the following from the issue:
 
 ---
 
+### Step 1a — Detect feature type
+
+Analyze the issue content extracted in Step 1 and classify the feature as one of:
+
+| Type | Label |
+| --- | --- |
+| Frontend only | `Frontend` |
+| Backend only | `Backend` |
+| Frontend + Backend | `Full-Stack` |
+
+**Frontend indicators:** UI screens, pages, components, forms, navigation, user interactions, state management, styling, layout, client-side validation.
+
+**Backend indicators:** API endpoints, database changes, authentication logic, authorization rules, background jobs, WebSocket gateways, service modules, data migrations.
+
+**Classification rules:**
+- If **only** frontend indicators are present → `Frontend`
+- If **only** backend indicators are present → `Backend`
+- If **both** are present, or if the issue explicitly mentions integration between layers → `Full-Stack`
+
+Store the result as **Feature Type** and use it throughout the rest of the steps to decide which plan sections to include.
+
+
+### Step 1b — Retrieve UI reference (Stitch MCP)
+
+Determine whether the issue involves a UI screen or visual interaction.
+
+**Skip this step entirely if:**
+- The issue is backend-only (no pages, components, forms, or user-facing states mentioned)
+- There is no relevant screen in Stitch
+
+**If the issue involves a UI screen:**
+
+Search Stitch MCP for the relevant screen or design using keywords from the issue title or description.
+
+Extract the following from the design:
+
+- **Screen purpose** — what the screen does and who uses it
+- **Layout structure** — overall page layout (sidebar, header, main content area, etc.)
+- **Component hierarchy** — the visual nesting of elements on screen
+- **Form inputs / UI controls** — all input fields, buttons, toggles, selects
+- **Interaction flows** — user actions and resulting transitions (clicks, submits, navigation)
+- **UI states** — which versions of the screen exist (loading, empty, error, success)
+
+Store this information for use in section **4. UI Architecture** of the plan.
+
+> If no matching screen is found in Stitch, skip this step and omit section 4 from the plan.
+
+---
 ### Step 2 — Clarify technical gaps (if needed)
 
 If the issue lacks information needed to produce a complete technical plan, ask clarifying questions before continuing.
@@ -67,8 +116,9 @@ Ask **at most 4 questions per round**. Use at most **2 rounds**. Stop once enoug
 
 ### Step 3 — Explore the codebase
 
-Search the existing codebase to understand the relevant frontend architecture before designing. Look for:
+Search the existing codebase to understand the relevant architecture before designing.
 
+**If the feature is Frontend or Full-Stack, look for:**
 - Existing pages, routes, and layouts
 - Shared UI components and design system usage
 - State management patterns (React Query, Zustand, Context, etc.)
@@ -77,7 +127,15 @@ Search the existing codebase to understand the relevant frontend architecture be
 - Error and loading state patterns
 - Existing hooks or reusable utilities
 
-Use this context to ground every technical decision in Steps 5–9.
+**If the feature is Backend or Full-Stack, look for:**
+- Existing API endpoints and routing conventions
+- Service layer patterns and business logic organisation
+- Authentication and authorisation patterns in use
+- Database schema and query patterns
+- Error handling and response format conventions
+- Test structure for existing services and endpoints
+
+Use this context to ground every technical decision in the plan.
 
 ---
 
@@ -99,13 +157,22 @@ Explain the problem the feature solves and why it matters.
 
 ---
 
-### 3. Technical Design
+### 3. Feature Type
+
+State the detected feature type from Step 1a:
+
+**Feature Type:** `Frontend` / `Backend` / `Full-Stack` _(choose one)_
+
+Briefly justify the classification in one sentence based on the issue content.
+
+
+### 4. Technical Design
 
 Describe the architecture and implementation approach grounded in the existing codebase patterns found in Step 3.
 
-Include only the sub-sections relevant to the feature.
+Include only the sub-sections relevant to the **Feature Type** detected in Step 1a.
 
-#### Frontend
+#### Frontend _(include for Frontend and Full-Stack features)_
 
 - Pages or routes to create or modify
 - UI components to build or extend
@@ -114,18 +181,18 @@ Include only the sub-sections relevant to the feature.
 - Form handling and validation
 - Loading, empty, and error states
 
+#### Backend _(include for Backend and Full-Stack features)_
+
+- Services to create or modify and their responsibilities
+- API endpoints to expose (method, path, purpose)
+- Authentication and authorisation requirements
+- Validation rules and error handling approach
+
 #### State Management _(if applicable)_
 
-- How state will be stored or managed
+- How client-side state will be stored or managed
 - Updates to existing state stores, hooks, or contexts
 - Caching or data synchronization strategies
-
-#### API Integration
-
-- Endpoints the frontend will call
-- Request and response shapes
-- How data fetching will be handled
-- Error handling for API failures
 
 #### Performance Considerations _(if relevant)_
 
@@ -139,7 +206,93 @@ Include only the sub-sections relevant to the feature.
 
 ---
 
-### 4. Edge Cases
+### 5. UI Architecture
+
+> Include this section only if a UI screen was retrieved in Step 1b. Omit it entirely for backend-only features.
+
+Translate the Stitch design into a React component architecture grounded in the existing codebase.
+
+**Rules:**
+- The Stitch design is a **visual reference only** — never copy raw code generated by Stitch
+- Translate the design into components using the repository's existing architecture and conventions
+- Prefer existing shared components from `src/components/ui/` before creating new ones
+- Follow the Tailwind CSS styling conventions used in the repo
+- Follow the BEM + Tailwind conventions from the project's styling standards
+
+**Screen:** `<screen name from Stitch>`
+
+**Component Tree:**
+
+```
+<ScreenPage>
+ ├─ <LayoutComponent>
+ │   ├─ <HeaderComponent>
+ │   └─ <MainContent>
+ │       ├─ <ReusableComponent />
+ │       └─ <ControlComponent />
+ └─ <FooterOrActions>
+```
+
+**UI States:**
+
+| State | Description | Component behaviour |
+| --- | --- | --- |
+| Loading | ... | Show spinner / skeleton |
+| Empty | ... | Show empty state message |
+| Error | ... | Show error card with retry |
+| Success | ... | Show populated content |
+
+**Interaction Flows:**
+
+Describe each user interaction and the resulting UI transition (e.g. button click → modal open, form submit → loading → success/error state).
+
+---
+
+### 6. API Contract
+
+> Include this section for Backend and Full-Stack features. Omit it for Frontend-only features.
+
+Define the API interface between frontend and backend so both sides can be implemented independently.
+
+**For REST endpoints**, use the following format for each endpoint:
+
+```
+<METHOD> <path>
+
+Auth: <required / not required> — <guard or mechanism>
+
+Request body:
+{
+  "<field>": "<type>  // <description>"
+}
+
+Response (200):
+{
+  "<field>": "<type>"
+}
+
+Error responses:
+- 400 Bad Request — <when>
+- 401 Unauthorized — <when>
+- 404 Not Found — <when>
+```
+
+**For WebSocket events**, use the following format for each event:
+
+```
+Event: <event-name>
+Direction: client → server | server → client | server → room
+
+Payload:
+{
+  "<field>": "<type>"
+}
+
+Behaviour: <what triggers it and what happens>
+```
+
+
+### 7. Edge Cases
 
 List potential edge cases the implementation must handle gracefully:
 
@@ -151,35 +304,65 @@ List potential edge cases the implementation must handle gracefully:
 
 ---
 
-### 5. Implementation Plan
+### 8. Implementation Plan
 
 Provide a high-level, sequenced technical implementation plan a developer can follow from start to finish. Each step should describe **what** to do, not show code.
 
 ---
 
-### 6. Implementation Order
+### 9. Implementation Order
 
-List the **exact order** developers should implement the steps. Use a numbered list.
+List the **exact order** developers should implement the steps. Use a numbered list derived from the feature type.
 
-Example:
+**Example — Backend feature:**
+
+1. Define or update database schema
+2. Implement service layer and business logic
+3. Implement controller endpoints
+4. Add validation, guards, and error handling
+5. Write unit and integration tests
+
+**Example — Frontend feature:**
 
 1. Install dependencies or update configuration
 2. Add shared UI components or design tokens
-3. Create or update service layer and API hooks
+3. Create or update API service hooks
 4. Build page-level components and wire up routes
 5. Add state management hooks or store updates
 6. Handle loading, empty, and error states
-7. Write component and integration tests
+7. Write component tests
+
+**Example — Full-Stack feature:**
+
+1. Agree on the API contract (section 6 of this plan)
+2. Implement backend service and endpoint
+3. Add validation, guards, and tests for the backend
+4. Implement frontend API service hook
+5. Build UI components and page
+6. Wire up state management and error handling
+7. Write end-to-end or integration tests
 
 ---
 
-### 7. Task Breakdown
+### 10. Task Breakdown
 
-A GitHub-style checklist where each task is small enough to implement in one focused session.
+A GitHub-style checklist derived from the implementation order. Group tasks by layer. Only include groups that apply to the feature type.
 
-- [ ] task 1
-- [ ] task 2
-- [ ] task 3
+**Backend** _(Backend and Full-Stack features only)_
+
+- [ ] …
+
+**Frontend** _(Frontend and Full-Stack features only)_
+
+- [ ] …
+
+**Shared / Cross-cutting**
+
+- [ ] …
+
+**Testing**
+
+- [ ] …
 
 ---
 
@@ -210,7 +393,11 @@ Examples:
 .github/plans/WM-2.md
 ```
 
-4. Write the complete plan (all seven sections from Step 4, in order) to that file.
+4. Write the complete plan (all sections from Step 4, in order) to that file.
+
+   **Conditional sections:**
+   - Section 5 (UI Architecture): include only if a UI screen was retrieved in Step 1b
+   - Section 6 (API Contract): include only for Backend and Full-Stack features
 
 Overwrite the file if it already exists.
 
@@ -226,7 +413,14 @@ Overwrite the file if it already exists.
 - Follow existing architecture patterns in the repository.
 - Ask at most 2 clarification rounds with at most 4 questions each.
 - Do not write implementation code — produce a technical plan only.
-- The output must use **exactly** the seven sections defined in Step 4, in order.
+- The **plan file is the single source of truth** for both technical implementation and UI architecture.
+- The Stitch design is a visual reference only — never copy raw Stitch-generated code into the plan.
+- Always translate Stitch designs into component architecture using the repository's existing conventions.
+- Prefer existing shared components before proposing new ones.
+- The output must use the sections defined in Step 4, in order.
+- Section 5 (UI Architecture) must be included when a Stitch screen was retrieved, and omitted otherwise.
+- Section 6 (API Contract) must be included for Backend and Full-Stack features, and omitted for Frontend-only features.
+- The Feature Type detected in Step 1a must drive which sub-sections appear in Technical Design, Implementation Order, and Task Breakdown.
 - Do not create or suggest creating a pull request.
 - The only permitted repository mutation is writing the plan file to `.github/plans/WM-<number>.md`. No other mutations (PR creation, commits, pushes) are allowed.
 - The plan must be specific enough that a developer can start implementation immediately without further clarification.
