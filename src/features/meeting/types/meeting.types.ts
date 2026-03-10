@@ -49,3 +49,20 @@ export interface ApiError {
   code: string;
   statusCode: number;
 }
+
+// Socket types
+export const SOCKET_STATUS = {
+  IDLE: 'idle',
+  CONNECTING: 'connecting',
+  CONNECTED: 'connected',
+  ERROR: 'error',
+  DISCONNECTED: 'disconnected',
+} as const;
+
+export type SocketConnectionStatus = (typeof SOCKET_STATUS)[keyof typeof SOCKET_STATUS];
+
+export interface UseMeetingSocketReturn {
+  isConnected: boolean;
+  connectionStatus: SocketConnectionStatus;
+  error: string | null;
+}

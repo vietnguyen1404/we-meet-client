@@ -9,6 +9,8 @@ import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
 import CopyIcon from '@/assets/icons/copy.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 import { meetingsApi } from '../services/meetingService';
+import { useMeetingSocket } from '../hooks';
+import { SOCKET_STATUS } from '../types/meeting.types';
 import type { MeetingLobbyData, ApiError } from '../types/meeting.types';
 
 export const MeetingLobbyPage = () => {
@@ -18,6 +20,8 @@ export const MeetingLobbyPage = () => {
   const { user } = useAuth();
   // Use primitive userId as effect dependency to avoid re-fetching on object reference changes (rerender-dependencies)
   const userId = user?.id;
+
+  const { connectionStatus, error: socketError } = useMeetingSocket(id);
 
   const [lobbyData, setLobbyData] = useState<MeetingLobbyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -124,6 +128,14 @@ export const MeetingLobbyPage = () => {
       </Header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {connectionStatus === SOCKET_STATUS.ERROR && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3">
+            <AlertTriangleIcon className="h-5 w-5 shrink-0 text-yellow-600" />
+            <Text className="text-sm text-yellow-800">
+              {socketError || t('meeting.lobby.socketError')}
+            </Text>
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">

@@ -97,7 +97,8 @@
       "participantsEmpty": "No participants yet",
       "youLabel": "(You)",
       "errorNotFound": "Meeting not found",
-      "errorUnauthorized": "You are not authorized to access this meeting"
+      "errorUnauthorized": "You are not authorized to access this meeting",
+      "socketError": "Could not connect to the meeting room. Please refresh."
     },
     "role": {
       "host": "Host",
