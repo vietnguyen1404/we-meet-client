@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth';
@@ -9,9 +9,10 @@ import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
 import CopyIcon from '@/assets/icons/copy.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 import { meetingsApi } from '../services/meetingService';
-import { useMeetingSocket } from '../hooks';
+import { useMeetingSocket, useParticipants } from '../hooks';
 import { SOCKET_STATUS } from '../types/meeting.types';
 import type { MeetingLobbyData, ApiError } from '../types/meeting.types';
+import { ParticipantList } from './ParticipantList';
 
 export const MeetingLobbyPage = () => {
   const { t } = useTranslation();
@@ -21,11 +22,17 @@ export const MeetingLobbyPage = () => {
   // Use primitive userId as effect dependency to avoid re-fetching on object reference changes (rerender-dependencies)
   const userId = user?.id;
 
-  const { connectionStatus, error: socketError } = useMeetingSocket(id);
+  const { isConnected, connectionStatus, error: socketError, socket } = useMeetingSocket(id);
 
   const [lobbyData, setLobbyData] = useState<MeetingLobbyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Stabilise the array reference to avoid an infinite re-render loop in
+  // useParticipants' "update state during render" pattern when lobbyData is null.
+  const meetingMembers = useMemo(() => lobbyData?.meeting.members ?? [], [lobbyData]);
+
+  const { participants, participantCount } = useParticipants(socket, id, meetingMembers, userId);
 
   const fetchMeetingData = useCallback(async () => {
     if (!id || !userId) return;
@@ -36,7 +43,7 @@ export const MeetingLobbyPage = () => {
     try {
       const meeting = await meetingsApi.getMeeting(id);
 
-      const currentMember = meeting.members.find((member) => member.id === userId);
+      const currentMember = meeting.members.find((member) => member.userId === userId);
       const currentUserRole = currentMember?.role || MEETING_ROLE.PARTICIPANT;
       const isHost = meeting.hostId === userId;
 
@@ -186,7 +193,7 @@ export const MeetingLobbyPage = () => {
                     as="span"
                     className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
                   >
-                    {t(`meeting.status.${meeting.status}`)}
+                    {t(`meeting.status.${meeting.status ?? 'active'}`)}
                   </Text>
                 </div>
               </div>
@@ -203,48 +210,13 @@ export const MeetingLobbyPage = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
               <Heading level={2} className="text-lg font-semibold text-gray-900 mb-4">
-                {t('meeting.lobby.participantsTitle')} ({meeting.members.length})
+                {t('meeting.lobby.participantsTitle')} ({participantCount})
               </Heading>
-              <div className="space-y-3">
-                {meeting.members.length === 0 ? (
-                  <Text className="text-sm text-gray-500">
-                    {t('meeting.lobby.participantsEmpty')}
-                  </Text>
-                ) : (
-                  lobbyData.meeting.members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <Text as="span" className="text-primary font-medium">
-                            {member.userName?.charAt(0).toUpperCase() || '?'}
-                          </Text>
-                        </div>
-                        <div>
-                          <Text className="text-sm font-medium text-gray-900">
-                            {member.userName}
-                            {member.id === user?.id && (
-                              <Text as="span" className="ml-2 text-xs text-gray-500">
-                                {t('meeting.lobby.youLabel')}
-                              </Text>
-                            )}
-                          </Text>
-                        </div>
-                      </div>
-                      {member.role === MEETING_ROLE.HOST && (
-                        <Text
-                          as="span"
-                          className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
-                        >
-                          {t('meeting.role.host')}
-                        </Text>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+              <ParticipantList
+                participants={participants}
+                currentUserId={userId}
+                isSocketConnected={isConnected}
+              />
             </div>
           </div>
         </div>

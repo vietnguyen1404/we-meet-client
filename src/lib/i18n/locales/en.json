@@ -95,6 +95,7 @@
       "comingSoonText": "Video chat and screen sharing will be available here.",
       "participantsTitle": "Participants",
       "participantsEmpty": "No participants yet",
+      "participantsLoading": "Connecting...",
       "youLabel": "(You)",
       "errorNotFound": "Meeting not found",
       "errorUnauthorized": "You are not authorized to access this meeting",

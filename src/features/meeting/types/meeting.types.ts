@@ -1,6 +1,6 @@
+import type { Socket } from 'socket.io-client';
 import type { MeetingRole } from '@/shared';
 
-// Meeting member/participant
 export interface MeetingMember {
   id: string;
   userId: string;
@@ -9,17 +9,17 @@ export interface MeetingMember {
   joinedAt: string;
 }
 
-// Meeting entity
 export interface Meeting {
   id: string;
   title: string;
   hostId: string;
   members: MeetingMember[];
   createdAt: string;
-  status: 'active' | 'ended';
+  updatedAt: string;
+  /** Not returned by the backend — frontend-only field, treat as undefined unless set locally */
+  status?: 'active' | 'ended';
 }
 
-// API Request/Response types
 export interface CreateMeetingRequest {
   title?: string;
 }
@@ -28,29 +28,22 @@ export interface JoinMeetingRequest {
   meetingId: string;
 }
 
-export interface JoinMeetingResponse {
-  meeting: Meeting;
-}
+export type JoinMeetingResponse = Meeting;
 
-export interface GetMeetingResponse {
-  meeting: Meeting;
-}
+export type GetMeetingResponse = Meeting;
 
-// Derived types for UI
 export interface MeetingLobbyData {
   meeting: Meeting;
   currentUserRole: MeetingRole;
   isHost: boolean;
 }
 
-// Error types
 export interface ApiError {
   message: string;
   code: string;
   statusCode: number;
 }
 
-// Socket types
 export const SOCKET_STATUS = {
   IDLE: 'idle',
   CONNECTING: 'connecting',
@@ -65,4 +58,33 @@ export interface UseMeetingSocketReturn {
   isConnected: boolean;
   connectionStatus: SocketConnectionStatus;
   error: string | null;
+  socket: Socket | null;
+}
+
+export interface ParticipantInfo {
+  userId: string;
+  name: string;
+  socketId: string;
+  /** Arrives as a string over WebSocket JSON; may be a Date when constructed locally. */
+  joinedAt: string | Date;
+}
+
+export interface ParticipantJoinedPayload {
+  meetingId: string;
+  participant: ParticipantInfo;
+}
+
+export interface ParticipantLeftPayload {
+  meetingId: string;
+  participant: ParticipantInfo;
+}
+
+export interface ParticipantsListPayload {
+  meetingId: string;
+  participants: ParticipantInfo[];
+}
+
+export interface UseParticipantsReturn {
+  participants: MeetingMember[];
+  participantCount: number;
 }

@@ -13,6 +13,7 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
     SOCKET_STATUS.IDLE,
   );
   const [error, setError] = useState<string | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     if (!meetingId) {
@@ -39,6 +40,7 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
     const handleConnect = () => {
       setConnectionStatus(SOCKET_STATUS.CONNECTED);
       setError(null);
+      setSocket(socket);
       socket.emit('join-room', { meetingId });
     };
 
@@ -61,6 +63,7 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
       socket.removeAllListeners();
       socket.disconnect();
       socketRef.current = null;
+      setSocket(null);
       setConnectionStatus(SOCKET_STATUS.IDLE);
       setError(null);
     };
@@ -70,5 +73,6 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
     isConnected: connectionStatus === SOCKET_STATUS.CONNECTED,
     connectionStatus,
     error,
+    socket,
   };
 };
