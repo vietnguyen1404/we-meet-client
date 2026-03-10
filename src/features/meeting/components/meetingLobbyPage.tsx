@@ -47,14 +47,18 @@ export const MeetingLobbyPage = () => {
       });
     } catch (err) {
       const apiError = err as ApiError;
+      const statusMessageMap: Record<number, string> = {
+        404: t('meeting.lobby.errorNotFound'),
+        401: t('meeting.lobby.errorUnauthorized'),
+        403: t('meeting.lobby.errorUnauthorized'),
+      };
 
-      if (apiError.statusCode === 404) {
-        setError(t('meeting.lobby.errorNotFound'));
-      } else if (apiError.statusCode === 401 || apiError.statusCode === 403) {
-        setError(t('meeting.lobby.errorUnauthorized'));
-      } else {
-        setError(apiError.message);
-      }
+      const errorMsg =
+        statusMessageMap[apiError.statusCode] ??
+        apiError.message ??
+        t('meeting.lobby.errorDefault');
+
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +76,7 @@ export const MeetingLobbyPage = () => {
   const copyMeetingId = () => {
     if (!id) return;
     navigator.clipboard.writeText(id);
+    // TODO: Show tooltip or toast notification on successful copy
   };
 
   if (isLoading) {
