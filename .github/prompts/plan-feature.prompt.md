@@ -71,7 +71,7 @@ Search the existing codebase to understand the relevant frontend architecture be
 
 - Existing pages, routes, and layouts
 - Shared UI components and design system usage
-- State management patterns (React Query, Redux, Zustand, Context, etc.)
+- State management patterns (React Query, Zustand, Context, etc.)
 - API client utilities or service layers
 - Form handling and validation patterns
 - Error and loading state patterns
@@ -81,51 +81,29 @@ Use this context to ground every technical decision in Steps 5–9.
 
 ---
 
-### Step 4 — Feature definition
+### Step 4 — Produce the plan
 
-Derive the following directly from the issue content:
-
-**Feature Summary**
-A 2–3 sentence plain-language description of what the feature is and what it does.
-
-**Problem Statement**
-Describe the problem or gap this feature addresses. Explain why it matters.
-
-**User Story**
-
-```
-As a <user type>, I want <goal> so that <benefit>.
-```
-
-_(Reuse the user story from the issue verbatim if present; otherwise derive it.)_
+Using the issue content and codebase findings, generate an implementation plan with **exactly** the following sections in this order. Do not add or remove sections.
 
 ---
 
-### Step 5 — Scope definition
+### 1. Feature Summary
 
-**In Scope**
-
-- What this implementation explicitly covers, based on the issue requirements.
-
-**Out of Scope**
-
-- What is intentionally excluded from this implementation.
+Explain briefly what the feature does (2–3 sentences).
 
 ---
 
-### Step 6 — Functional requirements
+### 2. Problem Statement
 
-List what the system must do. Derive from the issue's requirements and acceptance criteria. Each item must be independently verifiable.
-
-- [ ] The system must …
-- [ ] The system must …
-- [ ] The system must …
+Explain the problem the feature solves and why it matters.
 
 ---
 
-### Step 7 — Technical design
+### 3. Technical Design
 
-Provide a high-level technical design grounded in the codebase from Step 3. Include only the sections relevant to the feature.
+Describe the architecture and implementation approach grounded in the existing codebase patterns found in Step 3.
+
+Include only the sub-sections relevant to the feature.
 
 #### Frontend
 
@@ -139,7 +117,7 @@ Provide a high-level technical design grounded in the codebase from Step 3. Incl
 #### State Management _(if applicable)_
 
 - How state will be stored or managed
-- Updates to existing state stores or contexts
+- Updates to existing state stores, hooks, or contexts
 - Caching or data synchronization strategies
 
 #### API Integration
@@ -155,87 +133,88 @@ Provide a high-level technical design grounded in the codebase from Step 3. Incl
 - Memoization strategies
 - Avoiding unnecessary re-renders
 
-#### Realtime / External services _(if applicable)_
+#### Realtime / External Services _(if applicable)_
 
 - WebSocket events or third-party API integrations
 
 ---
 
-### Step 8 — Edge cases
+### 4. Edge Cases
 
-List scenarios the implementation must handle gracefully. Derive from the issue notes and acceptance criteria, then add any not covered:
+List potential edge cases the implementation must handle gracefully:
 
-- Permission or role-based access edge cases
-- Empty states and missing data
-- Network failures or timeout scenarios
-- Invalid or unexpected inputs
-- Concurrent operations or race conditions
-
----
-
-### Step 9 — Risks and considerations
-
-Identify potential risks and mitigation strategies:
-
-| Risk   | Impact                | Mitigation            |
-| ------ | --------------------- | --------------------- |
-| <risk> | <high / medium / low> | <mitigation strategy> |
-
-Consider: performance, scalability, security, data integrity, and technical complexity.
+- Invalid or unexpected input
+- Missing or null data
+- Permission and role-based access issues
+- Concurrency or race conditions
+- Any additional edge cases derived from the issue or codebase context
 
 ---
 
-### Step 10 — Implementation plan
+### 5. Implementation Plan
 
-A sequenced, step-by-step development plan a developer can follow from start to finish:
-
-1. **Setup** — scaffolding, route configuration, or shared utility changes
-2. **UI Components** — build or extend reusable components
-3. **Pages / Layouts** — create or modify page-level components and route entries
-4. **State Management** — hooks, context, or store updates
-5. **API Integration** — service layer updates, data fetching, error handling
-6. **Testing** — component tests, integration tests, manual UI test scenarios
-7. **Review & deploy** — PR checklist, acceptance criteria verification, smoke testing
+Provide a high-level, sequenced technical implementation plan a developer can follow from start to finish. Each step should describe **what** to do, not show code.
 
 ---
 
-### Step 11 — Task breakdown
+### 6. Implementation Order
 
-A developer-ready GitHub checklist. Each task should be small enough to complete in a single focused session.
+List the **exact order** developers should implement the steps. Use a numbered list.
 
-**Routing / Pages**
+Example:
 
-- [ ] Create or modify page component(s)
-- [ ] Add or update route configuration
+1. Install dependencies or update configuration
+2. Add shared UI components or design tokens
+3. Create or update service layer and API hooks
+4. Build page-level components and wire up routes
+5. Add state management hooks or store updates
+6. Handle loading, empty, and error states
+7. Write component and integration tests
 
-**UI Components**
+---
 
-- [ ] Build or extend reusable components
-- [ ] Compose component hierarchy
+### 7. Task Breakdown
 
-**State Management**
+A GitHub-style checklist where each task is small enough to implement in one focused session.
 
-- [ ] Update hooks, context, or store as needed
-- [ ] Handle loading, empty, and error states
+- [ ] task 1
+- [ ] task 2
+- [ ] task 3
 
-**API Integration**
+---
 
-- [ ] Update API service layer
-- [ ] Implement data fetching logic
-- [ ] Handle API error responses
+### Step 5 — Save the plan
 
-**Testing**
+Write the generated plan to the repository so it can be referenced by the `implement-feature` prompt.
 
-- [ ] Write component tests
-- [ ] Write integration tests
-- [ ] Manual UI testing against acceptance criteria
+1. Determine the **issue identifier** extracted in Step 1.
+   - If the issue title or identifier contains a ticket ID (for example `WM-1`, `WM-2`, etc.), use that ID.
+   - Otherwise fall back to the GitHub issue number.
 
-**Review**
+2. Ensure the `.github/plans` directory exists:
 
-- [ ] Self-review checklist completed
-- [ ] All acceptance criteria from the issue verified
-- [ ] Tests passing
-- [ ] PR created and linked to issue
+```bash
+mkdir -p .github/plans
+```
+
+3. Generate the filename using the issue identifier:
+
+```
+.github/plans/WM-<issue-id>.md
+```
+
+Examples:
+
+```
+.github/plans/WM-1.md
+.github/plans/WM-2.md
+```
+
+4. Write the complete plan (all seven sections from Step 4, in order) to that file.
+
+Overwrite the file if it already exists.
+
+5. Confirm the file was written by printing its path.
 
 ---
 
@@ -244,7 +223,10 @@ A developer-ready GitHub checklist. Each task should be small enough to complete
 - The **GitHub issue is the single source of truth** for requirements. Do not invent requirements not stated or implied by the issue.
 - Do not contradict or reinterpret acceptance criteria from the issue.
 - Ground all technical decisions in the existing codebase patterns found in Step 3.
-- Omit sections that genuinely do not apply (e.g. no Frontend section for a pure backend feature).
+- Follow existing architecture patterns in the repository.
 - Ask at most 2 clarification rounds with at most 4 questions each.
-- Do not generate implementation code — produce a plan only.
+- Do not write implementation code — produce a technical plan only.
+- The output must use **exactly** the seven sections defined in Step 4, in order.
+- Do not create or suggest creating a pull request.
+- The only permitted repository mutation is writing the plan file to `.github/plans/WM-<number>.md`. No other mutations (PR creation, commits, pushes) are allowed.
 - The plan must be specific enough that a developer can start implementation immediately without further clarification.
