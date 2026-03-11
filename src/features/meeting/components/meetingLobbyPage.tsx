@@ -22,7 +22,13 @@ export const MeetingLobbyPage = () => {
   // Use primitive userId as effect dependency to avoid re-fetching on object reference changes (rerender-dependencies)
   const userId = user?.id;
 
-  const { isConnected, connectionStatus, error: socketError, socket } = useMeetingSocket(id);
+  const {
+    isConnected,
+    connectionStatus,
+    error: socketError,
+    socket,
+    isReconnecting,
+  } = useMeetingSocket(id);
 
   const [lobbyData, setLobbyData] = useState<MeetingLobbyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,6 +142,12 @@ export const MeetingLobbyPage = () => {
       </Header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isReconnecting && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+            <SpinnerIcon className="animate-spin h-5 w-5 shrink-0 text-blue-600" />
+            <Text className="text-sm text-blue-800">{t('meeting.lobby.socketReconnecting')}</Text>
+          </div>
+        )}
         {connectionStatus === SOCKET_STATUS.ERROR && (
           <div className="mb-4 flex items-center gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3">
             <AlertTriangleIcon className="h-5 w-5 shrink-0 text-yellow-600" />

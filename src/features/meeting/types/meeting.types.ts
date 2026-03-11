@@ -49,7 +49,7 @@ export const SOCKET_STATUS = {
   CONNECTING: 'connecting',
   CONNECTED: 'connected',
   ERROR: 'error',
-  DISCONNECTED: 'disconnected',
+  RECONNECTING: 'reconnecting',
 } as const;
 
 export type SocketConnectionStatus = (typeof SOCKET_STATUS)[keyof typeof SOCKET_STATUS];
@@ -61,6 +61,10 @@ export interface UseMeetingSocketReturn {
   socket: Socket | null;
   /** Emit join-room to promote from lobby watcher to video call participant */
   joinRoom: () => void;
+  /** True while an automatic reconnect backoff is in progress */
+  isReconnecting: boolean;
+  /** The current reconnect attempt number (1-based, resets to 0 on success) */
+  reconnectAttempt: number;
 }
 
 export interface ParticipantInfo {

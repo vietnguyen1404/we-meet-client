@@ -32,6 +32,7 @@ export const getMeetingSocket = (url: string, token: string): Socket => {
 
   instance = io(url, {
     autoConnect: false,
+    reconnection: false,
     auth: { token },
   });
 
