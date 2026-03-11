@@ -99,7 +99,8 @@
       "youLabel": "(You)",
       "errorNotFound": "Meeting not found",
       "errorUnauthorized": "You are not authorized to access this meeting",
-      "socketError": "Could not connect to the meeting room. Please refresh."
+      "socketError": "Could not connect to the meeting room. Please refresh.",
+      "socketReconnecting": "Connection lost. Reconnecting..."
     },
     "role": {
       "host": "Host",
