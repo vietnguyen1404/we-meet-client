@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth';
@@ -28,11 +28,7 @@ export const MeetingLobbyPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Stabilise the array reference to avoid an infinite re-render loop in
-  // useParticipants' "update state during render" pattern when lobbyData is null.
-  const meetingMembers = useMemo(() => lobbyData?.meeting.members ?? [], [lobbyData]);
-
-  const { participants, participantCount } = useParticipants(socket, id, meetingMembers, userId);
+  const { participants, participantCount } = useParticipants(socket, id);
 
   const fetchMeetingData = useCallback(async () => {
     if (!id || !userId) return;
@@ -210,7 +206,8 @@ export const MeetingLobbyPage = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
               <Heading level={2} className="text-lg font-semibold text-gray-900 mb-4">
-                {t('meeting.lobby.participantsTitle')} ({participantCount})
+                {t('meeting.lobby.participantsTitle')}
+                {isConnected ? ` (${participantCount})` : ''}
               </Heading>
               <ParticipantList
                 participants={participants}

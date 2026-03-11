@@ -59,14 +59,26 @@ export interface UseMeetingSocketReturn {
   connectionStatus: SocketConnectionStatus;
   error: string | null;
   socket: Socket | null;
+  /** Emit join-room to promote from lobby watcher to video call participant */
+  joinRoom: () => void;
 }
 
 export interface ParticipantInfo {
+  socketId: string;
   userId: string;
   name: string;
-  socketId: string;
-  /** Arrives as a string over WebSocket JSON; may be a Date when constructed locally. */
-  joinedAt: string | Date;
+  /** Unix timestamp (Date.now()) as documented in socket-signaling.md */
+  joinedAt: number;
+}
+
+/** Client → Server: subscribe to lobby presence without joining the video call */
+export interface WatchMeetingPayload {
+  meetingId: string;
+}
+
+/** Client → Server: join the active video call */
+export interface JoinRoomPayload {
+  meetingId: string;
 }
 
 export interface ParticipantJoinedPayload {
@@ -85,6 +97,6 @@ export interface ParticipantsListPayload {
 }
 
 export interface UseParticipantsReturn {
-  participants: MeetingMember[];
+  participants: ParticipantInfo[];
   participantCount: number;
 }

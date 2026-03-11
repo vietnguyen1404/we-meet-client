@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { MEETING_ROLE } from '@/shared';
 import { Text } from '@/components/ui';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
-import type { MeetingMember } from '../types/meeting.types';
+import type { ParticipantInfo } from '../types/meeting.types';
 
 interface ParticipantListProps {
-  participants: MeetingMember[];
+  participants: ParticipantInfo[];
   currentUserId: string | undefined;
   isSocketConnected: boolean;
 }
@@ -30,36 +29,24 @@ export const ParticipantList = ({
         <Text className="text-sm text-gray-500">{t('meeting.lobby.participantsEmpty')}</Text>
       )}
 
-      {participants.map((member) => (
+      {participants.map((participant) => (
         <div
-          key={member.id}
-          className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+          key={participant.socketId}
+          className="flex items-center gap-3 p-3 rounded-lg bg-gray-50"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-              <Text as="span" className="text-primary font-medium">
-                {member.userName?.charAt(0).toUpperCase() || '?'}
-              </Text>
-            </div>
-            <div>
-              <Text className="text-sm font-medium text-gray-900">
-                {member.userName}
-                {member.userId === currentUserId && (
-                  <Text as="span" className="ml-2 text-xs text-gray-500">
-                    {t('meeting.lobby.youLabel')}
-                  </Text>
-                )}
-              </Text>
-            </div>
-          </div>
-          {member.role === MEETING_ROLE.HOST && (
-            <Text
-              as="span"
-              className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
-            >
-              {t('meeting.role.host')}
+          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+            <Text as="span" className="text-primary font-medium">
+              {participant.name?.charAt(0).toUpperCase() || '?'}
             </Text>
-          )}
+          </div>
+          <Text className="text-sm font-medium text-gray-900">
+            {participant.name}
+            {participant.userId === currentUserId && (
+              <Text as="span" className="ml-2 text-xs text-gray-500">
+                {t('meeting.lobby.youLabel')}
+              </Text>
+            )}
+          </Text>
         </div>
       ))}
     </div>

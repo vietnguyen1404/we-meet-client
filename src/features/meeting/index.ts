@@ -3,6 +3,7 @@ export { MeetingLobbyPage } from './components/meetingLobbyPage';
 export { ParticipantList } from './components/ParticipantList';
 
 export { meetingsApi } from './services/meetingService';
+export { getMeetingSocket, destroyMeetingSocket } from './services/socket';
 export { useMeetingSocket, useParticipants } from './hooks';
 
 export { SOCKET_STATUS } from './types/meeting.types';
@@ -21,5 +22,7 @@ export type {
   ParticipantJoinedPayload,
   ParticipantLeftPayload,
   ParticipantsListPayload,
+  WatchMeetingPayload,
+  JoinRoomPayload,
   UseParticipantsReturn,
 } from './types/meeting.types';
