@@ -9,10 +9,11 @@ import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
 import CopyIcon from '@/assets/icons/copy.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 import { meetingsApi } from '../services/meetingService';
-import { useMeetingSocket, useParticipants } from '../hooks';
+import { useMeetingSocket, useParticipants, useLocalMedia } from '../hooks';
 import { SOCKET_STATUS } from '../types/meeting.types';
 import type { MeetingLobbyData, ApiError } from '../types/meeting.types';
 import { ParticipantList } from './ParticipantList';
+import { LocalVideoPreview } from './LocalVideoPreview';
 
 export const MeetingLobbyPage = () => {
   const { t } = useTranslation();
@@ -35,6 +36,7 @@ export const MeetingLobbyPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const { participants, participantCount } = useParticipants(socket, id);
+  const { stream: localStream, isLoading: isMediaLoading, error: mediaError } = useLocalMedia();
 
   const fetchMeetingData = useCallback(async () => {
     if (!id || !userId) return;
@@ -208,10 +210,11 @@ export const MeetingLobbyPage = () => {
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <Heading level={2} className="text-lg font-semibold text-gray-900 mb-4">
-                {t('meeting.lobby.comingSoonTitle')}
-              </Heading>
-              <Text className="text-gray-600">{t('meeting.lobby.comingSoonText')}</Text>
+              <LocalVideoPreview
+                stream={localStream}
+                isLoading={isMediaLoading}
+                error={mediaError}
+              />
             </div>
           </div>
 

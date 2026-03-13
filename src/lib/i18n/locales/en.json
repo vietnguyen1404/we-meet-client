@@ -91,8 +91,6 @@
       "labelRole": "Your Role",
       "labelStatus": "Status",
       "copyMeetingId": "Copy meeting ID",
-      "comingSoonTitle": "Meeting Room (Coming Soon)",
-      "comingSoonText": "Video chat and screen sharing will be available here.",
       "participantsTitle": "Participants",
       "participantsEmpty": "No participants yet",
       "participantsLoading": "Connecting...",
@@ -100,7 +98,11 @@
       "errorNotFound": "Meeting not found",
       "errorUnauthorized": "You are not authorized to access this meeting",
       "socketError": "Could not connect to the meeting room. Please refresh.",
-      "socketReconnecting": "Connection lost. Reconnecting..."
+      "socketReconnecting": "Connection lost. Reconnecting...",
+      "mediaLoading": "Requesting camera and microphone access...",
+      "mediaPermissionDenied": "Camera and microphone access was denied. Please allow access and refresh.",
+      "mediaDeviceNotFound": "No camera or microphone found. Please connect a device and refresh.",
+      "mediaError": "Could not access camera or microphone. Please check your device and try again."
     },
     "role": {
       "host": "Host",
