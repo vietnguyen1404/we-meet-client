@@ -104,3 +104,9 @@ export interface UseParticipantsReturn {
   participants: ParticipantInfo[];
   participantCount: number;
 }
+
+export interface UseLocalMediaReturn {
+  stream: MediaStream | null;
+  isLoading: boolean;
+  error: string | null;
+}
