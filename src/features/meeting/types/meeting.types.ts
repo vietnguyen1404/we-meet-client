@@ -110,3 +110,18 @@ export interface UseLocalMediaReturn {
   isLoading: boolean;
   error: string | null;
 }
+
+export type PeerConnectionStatus =
+  | 'new'
+  | 'connecting'
+  | 'connected'
+  | 'disconnected'
+  | 'failed'
+  | 'closed';
+
+export interface UsePeerConnectionsReturn {
+  createPeerConnection: (peerId: string) => RTCPeerConnection | null;
+  closePeerConnection: (peerId: string) => void;
+  peerStatuses: Record<string, PeerConnectionStatus>;
+  peerCount: number;
+}

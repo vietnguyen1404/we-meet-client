@@ -5,6 +5,7 @@ import { env } from '@/config';
 import { getMeetingSocket, destroyMeetingSocket } from '../services/socket';
 import { SOCKET_STATUS } from '../types/meeting.types';
 import type { SocketConnectionStatus, UseMeetingSocketReturn } from '../types/meeting.types';
+import { SOCKET_REASONS_ERROR } from '../types/socket.types';
 
 const MAX_RECONNECT_ATTEMPTS = 5;
 
@@ -80,7 +81,6 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
     };
 
     const handleConnect = () => {
-      // Clear any pending reconnect timer
       if (reconnectTimerRef.current !== null) {
         clearTimeout(reconnectTimerRef.current);
         reconnectTimerRef.current = null;
@@ -105,7 +105,7 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
 
     const handleDisconnect = (reason: string) => {
       // Intentional disconnect from cleanup — skip reconnect loop entirely
-      if (reason === 'io client disconnect') return;
+      if (reason === SOCKET_REASONS_ERROR.IO_CLIENT_DISCONNECT) return;
 
       setConnectionStatus(SOCKET_STATUS.RECONNECTING);
       setIsReconnecting(true);

@@ -39,7 +39,7 @@ export const LocalVideoPreview = ({ stream, isLoading, error }: LocalVideoPrevie
   }
 
   return (
-    <div className="relative h-48 overflow-hidden rounded-lg bg-black">
+    <div className="relative overflow-hidden rounded-lg bg-black">
       <video
         ref={videoRef}
         autoPlay
