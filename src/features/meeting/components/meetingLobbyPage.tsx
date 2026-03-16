@@ -9,7 +9,13 @@ import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
 import CopyIcon from '@/assets/icons/copy.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 import { meetingsApi } from '../services/meetingService';
-import { useMeetingSocket, useParticipants, useLocalMedia } from '../hooks';
+import {
+  useMeetingSocket,
+  useParticipants,
+  useLocalMedia,
+  usePeerConnections,
+  useSignaling,
+} from '../hooks';
 import { SOCKET_STATUS } from '../types/meeting.types';
 import type { MeetingLobbyData, ApiError } from '../types/meeting.types';
 import { ParticipantList } from './ParticipantList';
@@ -37,6 +43,11 @@ export const MeetingLobbyPage = () => {
 
   const { participants, participantCount } = useParticipants(socket, id);
   const { stream: localStream, isLoading: isMediaLoading, error: mediaError } = useLocalMedia();
+
+  const { createPeerConnection, closePeerConnection, getPeerConnection } =
+    usePeerConnections(localStream);
+
+  useSignaling(socket, id, createPeerConnection, closePeerConnection, getPeerConnection);
 
   const fetchMeetingData = useCallback(async () => {
     if (!id || !userId) return;

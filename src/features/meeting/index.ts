@@ -5,7 +5,13 @@ export { LocalVideoPreview } from './components/LocalVideoPreview';
 
 export { meetingsApi } from './services/meetingService';
 export { getMeetingSocket, destroyMeetingSocket } from './services/socket';
-export { useMeetingSocket, useParticipants, useLocalMedia, usePeerConnections } from './hooks';
+export {
+  useMeetingSocket,
+  useParticipants,
+  useLocalMedia,
+  usePeerConnections,
+  useSignaling,
+} from './hooks';
 
 export { SOCKET_STATUS } from './types/meeting.types';
 
@@ -29,4 +35,8 @@ export type {
   UseLocalMediaReturn,
   PeerConnectionStatus,
   UsePeerConnectionsReturn,
+  OfferPayload,
+  AnswerPayload,
+  IceCandidatePayload,
+  UseSignalingReturn,
 } from './types/meeting.types';
