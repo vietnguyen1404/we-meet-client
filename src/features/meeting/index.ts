@@ -5,7 +5,7 @@ export { LocalVideoPreview } from './components/LocalVideoPreview';
 
 export { meetingsApi } from './services/meetingService';
 export { getMeetingSocket, destroyMeetingSocket } from './services/socket';
-export { useMeetingSocket, useParticipants, useLocalMedia } from './hooks';
+export { useMeetingSocket, useParticipants, useLocalMedia, usePeerConnections } from './hooks';
 
 export { SOCKET_STATUS } from './types/meeting.types';
 
@@ -27,4 +27,6 @@ export type {
   JoinRoomPayload,
   UseParticipantsReturn,
   UseLocalMediaReturn,
+  PeerConnectionStatus,
+  UsePeerConnectionsReturn,
 } from './types/meeting.types';
