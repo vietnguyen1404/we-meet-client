@@ -122,6 +122,32 @@ export type PeerConnectionStatus =
 export interface UsePeerConnectionsReturn {
   createPeerConnection: (peerId: string) => RTCPeerConnection | null;
   closePeerConnection: (peerId: string) => void;
+  getPeerConnection: (peerId: string) => RTCPeerConnection | undefined;
   peerStatuses: Record<string, PeerConnectionStatus>;
   peerCount: number;
+}
+
+/** Received when a remote peer relays an SDP offer */
+export interface OfferPayload {
+  fromSocketId: string;
+  payload: { type: 'offer'; sdp: string };
+}
+
+/** Received when a remote peer relays an SDP answer */
+export interface AnswerPayload {
+  fromSocketId: string;
+  payload: { type: 'answer'; sdp: string };
+}
+
+/** Received when a remote peer relays an ICE candidate */
+export interface IceCandidatePayload {
+  fromSocketId: string;
+  payload: { candidate: string; sdpMid: string | null; sdpMLineIndex: number | null };
+}
+
+export interface UseSignalingReturn {
+  /** True while at least one peer negotiation offer/answer round-trip is in flight */
+  isNegotiating: boolean;
+  /** Per-peer error messages; null means no error for that peer */
+  negotiationErrors: Record<string, string | null>;
 }

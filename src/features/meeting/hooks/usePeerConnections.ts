@@ -135,9 +135,14 @@ export const usePeerConnections = (stream: MediaStream | null): UsePeerConnectio
     };
   }, []);
 
+  const getPeerConnection = useCallback((peerId: string): RTCPeerConnection | undefined => {
+    return peerConnectionsRef.current.get(peerId);
+  }, []);
+
   return {
     createPeerConnection,
     closePeerConnection,
+    getPeerConnection,
     peerStatuses,
     peerCount: Object.keys(peerStatuses).length,
   };
