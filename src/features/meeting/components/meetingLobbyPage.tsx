@@ -9,15 +9,9 @@ import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
 import CopyIcon from '@/assets/icons/copy.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 import { meetingsApi } from '../services/meetingService';
-import {
-  useMeetingSocket,
-  useParticipants,
-  useLocalMedia,
-  usePeerConnections,
-  useSignaling,
-} from '../hooks';
+import { useMeetingSocket, useParticipants, useLocalMedia } from '../hooks';
 import { SOCKET_STATUS } from '../types/meeting.types';
-import type { MeetingLobbyData, ApiError } from '../types/meeting.types';
+import type { Meeting, ApiError } from '../types/meeting.types';
 import { ParticipantList } from './ParticipantList';
 import { LocalVideoPreview } from './LocalVideoPreview';
 
@@ -37,17 +31,13 @@ export const MeetingLobbyPage = () => {
     isReconnecting,
   } = useMeetingSocket(id);
 
-  const [lobbyData, setLobbyData] = useState<MeetingLobbyData | null>(null);
+  const [meeting, setMeeting] = useState<Meeting | null>(null);
+  const [isHost, setIsHost] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const { participants, participantCount } = useParticipants(socket, id);
   const { stream: localStream, isLoading: isMediaLoading, error: mediaError } = useLocalMedia();
-
-  const { createPeerConnection, closePeerConnection, getPeerConnection } =
-    usePeerConnections(localStream);
-
-  useSignaling(socket, id, createPeerConnection, closePeerConnection, getPeerConnection);
 
   const fetchMeetingData = useCallback(async () => {
     if (!id || !userId) return;
@@ -58,15 +48,9 @@ export const MeetingLobbyPage = () => {
     try {
       const meeting = await meetingsApi.getMeeting(id);
 
-      const currentMember = meeting.members.find((member) => member.userId === userId);
-      const currentUserRole = currentMember?.role || MEETING_ROLE.PARTICIPANT;
       const isHost = meeting.hostId === userId;
-
-      setLobbyData({
-        meeting,
-        currentUserRole,
-        isHost,
-      });
+      setMeeting(meeting);
+      setIsHost(isHost);
     } catch (err) {
       const apiError = err as ApiError;
       const statusMessageMap: Record<number, string> = {
@@ -112,7 +96,7 @@ export const MeetingLobbyPage = () => {
     );
   }
 
-  if (error || !lobbyData) {
+  if (error || !meeting) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 border border-gray-200">
@@ -133,7 +117,7 @@ export const MeetingLobbyPage = () => {
     );
   }
 
-  const { meeting, currentUserRole, isHost } = lobbyData;
+  const currentUserRole = isHost ? MEETING_ROLE.HOST : MEETING_ROLE.PARTICIPANT;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -214,7 +198,7 @@ export const MeetingLobbyPage = () => {
                     as="span"
                     className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
                   >
-                    {t(`meeting.status.${meeting.status ?? 'active'}`)}
+                    {t('meeting.status.active')}
                   </Text>
                 </div>
               </div>

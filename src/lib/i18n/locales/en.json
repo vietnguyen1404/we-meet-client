@@ -102,7 +102,19 @@
       "mediaLoading": "Requesting camera and microphone access...",
       "mediaPermissionDenied": "Camera and microphone access was denied. Please allow access and refresh.",
       "mediaDeviceNotFound": "No camera or microphone found. Please connect a device and refresh.",
-      "mediaError": "Could not access camera or microphone. Please check your device and try again."
+      "mediaError": "Could not access camera or microphone. Please check your device and try again.",
+      "buttonJoin": "Join Meeting",
+      "joiningTitle": "Joining...",
+      "you": "You"
+    },
+    "controls": {
+      "toggleMic": "Toggle microphone",
+      "toggleCamera": "Toggle camera",
+      "leave": "Leave meeting"
+    },
+    "room": {
+      "loadingTitle": "Joining meeting...",
+      "errorDefault": "Unable to join meeting"
     },
     "role": {
       "host": "Host",

@@ -85,16 +85,11 @@ export const useParticipants = (
     socket.on('participant-joined', handleParticipantJoined);
     socket.on('participant-left', handleParticipantLeft);
 
-    // Emit after listeners are registered so the response is never dropped.
-    socket.emit('watch-meeting', { meetingId });
-
     return () => {
       socket.off('participants-list', handleParticipantsList);
       socket.off('participant-joined', handleParticipantJoined);
       socket.off('participant-left', handleParticipantLeft);
-      // Reset stale entries when this socket is torn down (on reconnect or
-      // unmount). By the time the new socket fires, the map is empty and
-      // participants-list will populate it fresh.
+
       setParticipantMap({});
     };
   }, [socket, meetingId]);

@@ -1,8 +1,9 @@
 import { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
-import AlertTriangleIcon from '@/assets/icons/alert-triangle.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
+import { useAuth } from '@/features/auth';
+import { ParticipantAvatar } from './ParticipantAvatar';
 
 interface LocalVideoPreviewProps {
   stream: MediaStream | null;
@@ -13,6 +14,7 @@ interface LocalVideoPreviewProps {
 export const LocalVideoPreview = ({ stream, isLoading, error }: LocalVideoPreviewProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (videoRef.current && stream) {
@@ -29,24 +31,25 @@ export const LocalVideoPreview = ({ stream, isLoading, error }: LocalVideoPrevie
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3">
-        <AlertTriangleIcon className="h-5 w-5 shrink-0 text-yellow-600" />
-        <Text className="text-sm text-yellow-800">{t(error)}</Text>
-      </div>
-    );
-  }
+  const isPermissionDenied = error === t('meeting.lobby.mediaPermissionDenied');
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-black">
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        className="h-full w-full object-cover scale-x-[-1]"
-      />
+    <div className="h-64 overflow-hidden rounded-lg">
+      {isPermissionDenied ? (
+        <ParticipantAvatar
+          displayName={user?.name ?? t('meeting.lobby.you')}
+          isMuted
+          className="h-full"
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="h-full w-full object-cover scale-x-[-1]"
+        />
+      )}
     </div>
   );
 };

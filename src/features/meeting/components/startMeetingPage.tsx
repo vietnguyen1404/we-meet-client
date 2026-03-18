@@ -63,14 +63,13 @@ export const StartMeetingPage = () => {
     setIsJoining(true);
     setJoinError(null);
     try {
-      await meetingsApi.joinMeeting(trimmedId);
+      await meetingsApi.getMeeting(trimmedId);
       navigate(`/meetings/${trimmedId}`);
     } catch (err) {
       const apiError = err as ApiError;
       const errorMsg =
         {
           404: t('meeting.join.errorNotFound'),
-          409: t('meeting.join.errorAlreadyJoined'),
           401: t('meeting.join.errorAuth'),
         }[apiError.statusCode] || apiError.message;
 

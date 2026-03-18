@@ -5,6 +5,7 @@ import type {
   AnswerPayload,
   IceCandidatePayload,
   ParticipantJoinedPayload,
+  ParticipantLeftPayload,
   UseSignalingReturn,
 } from '../types/meeting.types';
 
@@ -23,6 +24,7 @@ export const useSignaling = (
   createPeerConnection: (peerId: string) => RTCPeerConnection | null,
   closePeerConnection: (peerId: string) => void,
   getPeerConnection: (peerId: string) => RTCPeerConnection | undefined,
+  addStream: (peerId: string, stream: MediaStream) => void,
 ): UseSignalingReturn => {
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [negotiationErrors, setNegotiationErrors] = useState<Record<string, string | null>>({});
@@ -77,7 +79,6 @@ export const useSignaling = (
       };
     };
 
-    // ── Handler: participant-joined ──────────────────────────────────────────
     // Fired when a remote participant joins the video call room. We are the
     // existing participant — we initiate the offer.
     const handleParticipantJoined = async (data: ParticipantJoinedPayload): Promise<void> => {
@@ -94,6 +95,7 @@ export const useSignaling = (
       remoteDescriptionSetRef.current.delete(peerId);
 
       const pc = createPeerConnection(peerId);
+
       if (!pc) {
         console.warn(
           `[useSignaling] handleParticipantJoined: could not create PC for "${peerId}" (mesh limit or error)`,
@@ -103,10 +105,19 @@ export const useSignaling = (
 
       attachOnIceCandidate(peerId, pc);
 
+      // Set ontrack immediately — before any async operations — so the track
+      // event is never missed even if ICE completes faster than a React render.
+      pc.ontrack = (event: RTCTrackEvent) => {
+        const stream = event.streams[0];
+
+        if (stream && !isUnmountedRef.current) addStream(peerId, stream);
+      };
+
       activeNegotiationsRef.current += 1;
       setIsNegotiating(true);
       try {
         const offer = await pc.createOffer();
+
         if (isUnmountedRef.current) return;
         await pc.setLocalDescription(offer);
         if (isUnmountedRef.current) return;
@@ -158,6 +169,13 @@ export const useSignaling = (
       }
 
       attachOnIceCandidate(peerId, pc);
+
+      // Set ontrack immediately — before any async operations — so the track
+      // event is never missed even if ICE completes faster than a React render.
+      pc.ontrack = (event: RTCTrackEvent) => {
+        const stream = event.streams[0];
+        if (stream && !isUnmountedRef.current) addStream(peerId, stream);
+      };
 
       activeNegotiationsRef.current += 1;
       setIsNegotiating(true);
@@ -273,6 +291,20 @@ export const useSignaling = (
     socket.on('answer', handleAnswer);
     socket.on('ice-candidate', handleIceCandidate);
 
+    // Close the RTCPeerConnection immediately when a participant leaves so the
+    // video tile disappears right away, rather than waiting for the WebRTC
+    // connection to time out on its own.
+    const handleParticipantLeft = (data: ParticipantLeftPayload): void => {
+      const participant = data?.participant;
+      if (!participant || typeof participant.socketId !== 'string' || !participant.socketId) {
+        console.warn('[useSignaling] participant-left: malformed payload', data);
+        return;
+      }
+      closePeerConnection(participant.socketId);
+    };
+
+    socket.on('participant-left', handleParticipantLeft);
+
     // Capture current map/set in local variables so cleanup uses the same
     // object reference even if the ref is reassigned (satisfies react-hooks/exhaustive-deps).
     const iceCandidateQueues = iceCandidateQueuesRef.current;
@@ -285,10 +317,11 @@ export const useSignaling = (
       socket.off('offer', handleOffer);
       socket.off('answer', handleAnswer);
       socket.off('ice-candidate', handleIceCandidate);
+      socket.off('participant-left', handleParticipantLeft);
       iceCandidateQueues.clear();
       remoteDescriptionSet.clear();
     };
-  }, [socket, meetingId, createPeerConnection, closePeerConnection, getPeerConnection]);
+  }, [socket, meetingId, createPeerConnection, closePeerConnection, getPeerConnection, addStream]);
 
   return { isNegotiating, negotiationErrors };
 };

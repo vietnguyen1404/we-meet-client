@@ -1,41 +1,17 @@
 import type { Socket } from 'socket.io-client';
-import type { MeetingRole } from '@/shared';
 
-export interface MeetingMember {
-  id: string;
-  userId: string;
-  userName: string;
-  role: MeetingRole;
-  joinedAt: string;
-}
+export type { MeetingPhase } from '@/shared/constants/meeting';
 
 export interface Meeting {
   id: string;
   title: string;
   hostId: string;
-  members: MeetingMember[];
   createdAt: string;
   updatedAt: string;
-  /** Not returned by the backend — frontend-only field, treat as undefined unless set locally */
-  status?: 'active' | 'ended';
 }
 
 export interface CreateMeetingRequest {
   title?: string;
-}
-
-export interface JoinMeetingRequest {
-  meetingId: string;
-}
-
-export type JoinMeetingResponse = Meeting;
-
-export type GetMeetingResponse = Meeting;
-
-export interface MeetingLobbyData {
-  meeting: Meeting;
-  currentUserRole: MeetingRole;
-  isHost: boolean;
 }
 
 export interface ApiError {
@@ -59,29 +35,35 @@ export interface UseMeetingSocketReturn {
   connectionStatus: SocketConnectionStatus;
   error: string | null;
   socket: Socket | null;
-  /** Emit join-room to promote from lobby watcher to video call participant */
+  /** Connect the socket. Resolves when the `connect` event fires. */
+  connect: () => Promise<void>;
+  /** Emit join-room to enter the video call room */
   joinRoom: () => void;
+  /** Emit leave-room, disconnect, and reset state */
+  leaveRoom: () => void;
   /** True while an automatic reconnect backoff is in progress */
   isReconnecting: boolean;
   /** The current reconnect attempt number (1-based, resets to 0 on success) */
   reconnectAttempt: number;
+  /** Emit watch-meeting to observe presence in the lobby without joining the call */
+  watchMeeting: () => void;
 }
 
 export interface ParticipantInfo {
   socketId: string;
   userId: string;
   name: string;
-  /** Unix timestamp (Date.now()) as documented in socket-signaling.md */
+  isHost: boolean;
   joinedAt: number;
-}
-
-/** Client → Server: subscribe to lobby presence without joining the video call */
-export interface WatchMeetingPayload {
-  meetingId: string;
 }
 
 /** Client → Server: join the active video call */
 export interface JoinRoomPayload {
+  meetingId: string;
+}
+
+/** Client → Server: leave the active video call */
+export interface LeaveRoomPayload {
   meetingId: string;
 }
 
@@ -150,4 +132,19 @@ export interface UseSignalingReturn {
   isNegotiating: boolean;
   /** Per-peer error messages; null means no error for that peer */
   negotiationErrors: Record<string, string | null>;
+}
+
+export interface VideoTile {
+  peerId: string;
+  stream: MediaStream | null;
+  label: string;
+  isMuted?: boolean;
+  isCameraOff?: boolean;
+  isLocal?: boolean;
+}
+
+export interface UseRemoteStreamsReturn {
+  remoteStreams: Map<string, MediaStream>;
+  /** Add or update a remote stream directly, bypassing the peerStatuses effect */
+  addStream: (peerId: string, stream: MediaStream) => void;
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { UseLocalMediaReturn } from '../types/meeting.types';
+import { useTranslation } from 'react-i18next';
 
 const MEDIA_ERROR_KEYS = {
   PERMISSION_DENIED: 'meeting.lobby.mediaPermissionDenied',
@@ -7,18 +8,18 @@ const MEDIA_ERROR_KEYS = {
   GENERIC: 'meeting.lobby.mediaError',
 } as const;
 
-function resolveMediaErrorKey(err: unknown): string {
+function resolveMediaErrorKey(err: unknown, t: (key: string) => string): string {
   if (err instanceof Error) {
     const name = err.name;
     if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-      return MEDIA_ERROR_KEYS.PERMISSION_DENIED;
+      return t(MEDIA_ERROR_KEYS.PERMISSION_DENIED);
     }
     if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
-      return MEDIA_ERROR_KEYS.DEVICE_NOT_FOUND;
+      return t(MEDIA_ERROR_KEYS.DEVICE_NOT_FOUND);
     }
     console.warn('[useLocalMedia] Unrecognised getUserMedia error:', name, err);
   }
-  return MEDIA_ERROR_KEYS.GENERIC;
+  return t(MEDIA_ERROR_KEYS.GENERIC);
 }
 
 export const useLocalMedia = (): UseLocalMediaReturn => {
@@ -29,13 +30,15 @@ export const useLocalMedia = (): UseLocalMediaReturn => {
   const isMountedRef = useRef<boolean>(false);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     isMountedRef.current = true;
 
     const acquire = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         if (isMountedRef.current) {
-          setError(MEDIA_ERROR_KEYS.GENERIC);
+          setError(t(MEDIA_ERROR_KEYS.GENERIC));
           setIsLoading(false);
         }
         return;
@@ -59,7 +62,7 @@ export const useLocalMedia = (): UseLocalMediaReturn => {
         setIsLoading(false);
       } catch (err) {
         if (!isMountedRef.current) return;
-        setError(resolveMediaErrorKey(err));
+        setError(resolveMediaErrorKey(err, t));
         setIsLoading(false);
       }
     };
