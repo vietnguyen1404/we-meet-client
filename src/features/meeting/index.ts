@@ -1,7 +1,10 @@
-export { StartMeetingPage } from './components/startMeetingPage';
-export { MeetingLobbyPage } from './components/meetingLobbyPage';
+export { StartMeetingPage } from './components/StartMeetingPage';
+export { MeetingLobbyPage } from './components/MeetingLobbyPage';
+export { MeetingPage } from './components/MeetingPage';
 export { ParticipantList } from './components/ParticipantList';
 export { LocalVideoPreview } from './components/LocalVideoPreview';
+export { MediaControls } from './components/MediaControls';
+export { VideoGrid } from './components/VideoGrid';
 
 export { meetingsApi } from './services/meetingService';
 export { getMeetingSocket, destroyMeetingSocket } from './services/socket';
@@ -11,17 +14,15 @@ export {
   useLocalMedia,
   usePeerConnections,
   useSignaling,
+  useRemoteStreams,
 } from './hooks';
 
 export { SOCKET_STATUS } from './types/meeting.types';
 
 export type {
   Meeting,
-  MeetingMember,
+  MeetingPhase,
   CreateMeetingRequest,
-  JoinMeetingResponse,
-  GetMeetingResponse,
-  MeetingLobbyData,
   ApiError,
   SocketConnectionStatus,
   UseMeetingSocketReturn,
@@ -29,8 +30,8 @@ export type {
   ParticipantJoinedPayload,
   ParticipantLeftPayload,
   ParticipantsListPayload,
-  WatchMeetingPayload,
   JoinRoomPayload,
+  LeaveRoomPayload,
   UseParticipantsReturn,
   UseLocalMediaReturn,
   PeerConnectionStatus,
@@ -39,4 +40,6 @@ export type {
   AnswerPayload,
   IceCandidatePayload,
   UseSignalingReturn,
+  VideoTile,
+  UseRemoteStreamsReturn,
 } from './types/meeting.types';

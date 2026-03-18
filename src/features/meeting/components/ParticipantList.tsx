@@ -36,17 +36,24 @@ export const ParticipantList = ({
         >
           <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
             <Text as="span" className="text-primary font-medium">
-              {participant.name?.charAt(0).toUpperCase() || '?'}
+              {participant.userId.charAt(0).toUpperCase()}
             </Text>
           </div>
-          <Text className="text-sm font-medium text-gray-900">
-            {participant.name}
-            {participant.userId === currentUserId && (
-              <Text as="span" className="ml-2 text-xs text-gray-500">
-                {t('meeting.lobby.youLabel')}
+          <div className="flex-1 min-w-0">
+            <Text className="text-sm font-medium text-gray-900 truncate">
+              {participant.userId}
+              {participant.userId === currentUserId && (
+                <Text as="span" className="ml-2 text-xs text-gray-500">
+                  {t('meeting.lobby.youLabel')}
+                </Text>
+              )}
+            </Text>
+            {participant.isHost && (
+              <Text as="span" className="text-xs text-primary font-medium">
+                {t('meeting.role.host')}
               </Text>
             )}
-          </Text>
+          </div>
         </div>
       ))}
     </div>

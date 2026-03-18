@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage, DashboardPage, ProtectedRoute } from '@/features/auth';
-import { StartMeetingPage, MeetingLobbyPage } from '@/features/meeting';
+import { StartMeetingPage, MeetingPage } from '@/features/meeting';
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/meetings/:id',
-        element: <MeetingLobbyPage />,
+        element: <MeetingPage />,
       },
     ],
   },

@@ -559,3 +559,76 @@ export default function HomePage() {
 - Centralized design decisions
 - Easy refactoring and theming
 - Scales well for large teams
+
+## Code Style Rules
+
+### 1. Avoid inline comparisons in JSX / logic
+
+- Do NOT write direct comparisons like:
+  `phase === 'JOINING'`
+
+- Do NOT define derived boolean variables inside components:
+  ```ts
+  const isJoining = phase === 'JOINING'; ❌
+  ```
+
+- ALWAYS define reusable state helpers in a dedicated constants module  
+  (e.g. `@/shared/constants/meeting.ts`)
+
+- Example:
+
+  ```ts
+  // shared/constants/meeting.ts
+  export enum MeetingPhase {
+    PRE_JOIN = 'PRE_JOIN',
+    JOINING = 'JOINING',
+    IN_CALL = 'IN_CALL',
+  }
+
+  export const MeetingPhaseFlags = {
+    isPreJoin: (phase: MeetingPhase) => phase === MeetingPhase.PRE_JOIN,
+    isJoining: (phase: MeetingPhase) => phase === MeetingPhase.JOINING,
+    isInCall: (phase: MeetingPhase) => phase === MeetingPhase.IN_CALL,
+  };
+  ```
+
+- Usage in component:
+
+  ```ts
+  import { MeetingPhaseFlags } from '@/shared/constants/meeting';
+
+  if (MeetingPhaseFlags.isJoining(phase)) {
+    ...
+  }
+  ```
+
+- Benefits:
+  - Centralized logic
+  - Avoid duplication
+  - Cleaner components
+  - Easier refactor when phase changes
+
+---
+
+### 2. SVG/Icon usage
+- NEVER inline SVG directly in JSX:
+  `<svg>...</svg> ❌`
+
+- ALWAYS import icons as React components:
+  `import CopyIcon from '@/assets/icons/copy.svg?react';`
+
+- Then use like a normal component:
+  `<CopyIcon className="size-4" />`
+
+- Benefits:
+  - Consistent styling
+  - Tree-shaking friendly
+  - Easier reuse
+  - Cleaner JSX
+
+---
+
+### 3. General Principle
+- Prefer readability over brevity
+- Extract logic → avoid duplication
+- JSX should stay as clean and declarative as possible

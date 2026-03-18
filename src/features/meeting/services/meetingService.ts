@@ -1,10 +1,5 @@
 import { httpClient } from '@/lib/api';
-import type {
-  CreateMeetingRequest,
-  JoinMeetingResponse,
-  ApiError,
-  Meeting,
-} from '../types/meeting.types';
+import type { CreateMeetingRequest, ApiError, Meeting } from '../types/meeting.types';
 
 /**
  * API Service for Meeting operations
@@ -18,19 +13,6 @@ export const meetingsApi = {
   createMeeting: async (data: CreateMeetingRequest): Promise<Meeting> => {
     try {
       const response = await httpClient.post<Meeting>('/meetings', data);
-      return response.data;
-    } catch (error: unknown) {
-      throw handleApiError(error);
-    }
-  },
-
-  /**
-   * Join an existing meeting
-   * POST /meetings/:id/join
-   */
-  joinMeeting: async (meetingId: string): Promise<JoinMeetingResponse> => {
-    try {
-      const response = await httpClient.post<JoinMeetingResponse>(`/meetings/${meetingId}/join`);
       return response.data;
     } catch (error: unknown) {
       throw handleApiError(error);
