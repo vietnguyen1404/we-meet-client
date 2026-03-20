@@ -9,18 +9,29 @@ interface LocalVideoPreviewProps {
   stream: MediaStream | null;
   isLoading: boolean;
   error: string | null;
+  isCameraOn: boolean;
+  isMicrophoneOn: boolean;
 }
 
-export const LocalVideoPreview = ({ stream, isLoading, error }: LocalVideoPreviewProps) => {
+export const LocalVideoPreview = ({
+  stream,
+  isLoading,
+  error,
+  isCameraOn,
+  isMicrophoneOn,
+}: LocalVideoPreviewProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const { user } = useAuth();
 
   useEffect(() => {
-    if (videoRef.current && stream) {
+    if (!videoRef.current) return;
+    if (isCameraOn && stream) {
       videoRef.current.srcObject = stream;
+    } else {
+      videoRef.current.srcObject = null;
     }
-  }, [stream]);
+  }, [stream, isCameraOn]);
 
   if (isLoading) {
     return (
@@ -32,14 +43,15 @@ export const LocalVideoPreview = ({ stream, isLoading, error }: LocalVideoPrevie
   }
 
   const isPermissionDenied = error === t('meeting.lobby.mediaPermissionDenied');
+  const showPlaceholder = !isCameraOn || isPermissionDenied || !stream;
 
   return (
-    <div className="h-64 overflow-hidden rounded-lg">
-      {isPermissionDenied ? (
+    <div className="flex min-h-64 overflow-hidden rounded-lg">
+      {showPlaceholder ? (
         <ParticipantAvatar
           displayName={user?.name ?? t('meeting.lobby.you')}
-          isMuted
-          className="h-full"
+          isMuted={!isMicrophoneOn}
+          className="flex-1"
         />
       ) : (
         <video
@@ -47,7 +59,7 @@ export const LocalVideoPreview = ({ stream, isLoading, error }: LocalVideoPrevie
           autoPlay
           playsInline
           muted
-          className="h-full w-full object-cover scale-x-[-1]"
+          className="flex-1 w-full object-cover scale-x-[-1]"
         />
       )}
     </div>

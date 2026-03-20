@@ -24,7 +24,7 @@ export const ParticipantAvatar = ({
   return (
     <div
       className={cn(
-        'relative flex items-center flex-1 justify-center w-full h-full overflow-hidden',
+        'relative flex items-center flex-1 justify-center w-full overflow-hidden',
         'bg-linear-to-br',
         background,
         className,
