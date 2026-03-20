@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared';
 import { IconButton } from '@/components/ui';
@@ -8,6 +7,10 @@ import LeaveIcon from '@/assets/icons/leave.svg?react';
 
 interface MediaControlsProps {
   stream: MediaStream | null;
+  onToggleAudio?: () => void;
+  onToggleVideo?: () => void;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
   className?: string;
   children?: React.ReactNode;
 }
@@ -33,26 +36,16 @@ const LeaveButton = ({ onLeave }: MediaControlsLeaveProps) => {
 
 export const MediaControls: React.FC<MediaControlsProps> & {
   Leave: typeof LeaveButton;
-} = ({ stream, className, children }) => {
+} = ({
+  stream,
+  className,
+  children,
+  onToggleAudio,
+  onToggleVideo,
+  isAudioEnabled,
+  isVideoEnabled,
+}) => {
   const { t } = useTranslation();
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
-
-  const toggleMic = () => {
-    if (!stream) return;
-    const track = stream.getAudioTracks()[0];
-    if (!track) return;
-    track.enabled = !isMuted;
-    setIsMuted((prev) => !prev);
-  };
-
-  const toggleCamera = () => {
-    if (!stream) return;
-    const track = stream.getVideoTracks()[0];
-    if (!track) return;
-    track.enabled = !isCameraOff;
-    setIsCameraOff((prev) => !prev);
-  };
 
   const hasAudio = stream !== null && stream.getAudioTracks().length > 0;
   const hasVideo = stream !== null && stream.getVideoTracks().length > 0;
@@ -60,15 +53,15 @@ export const MediaControls: React.FC<MediaControlsProps> & {
   return (
     <div className={cn('flex items-center justify-center gap-4', className)}>
       <IconButton
-        onClick={toggleMic}
+        onClick={onToggleAudio}
         disabled={!hasAudio}
         aria-label={t('meeting.controls.toggleMic')}
         title={t('meeting.controls.toggleMic')}
         className={cn(
           'h-12 w-12 transition-colors',
-          isMuted
-            ? 'bg-red-500 text-white hover:bg-red-600'
-            : 'bg-gray-600/80 text-white hover:bg-gray-500/80',
+          isAudioEnabled
+            ? 'bg-gray-600/80 text-white hover:bg-gray-500/80'
+            : 'bg-red-500 text-white hover:bg-red-600',
           !hasAudio && 'opacity-40 cursor-not-allowed',
         )}
       >
@@ -76,15 +69,15 @@ export const MediaControls: React.FC<MediaControlsProps> & {
       </IconButton>
 
       <IconButton
-        onClick={toggleCamera}
+        onClick={onToggleVideo}
         disabled={!hasVideo}
         aria-label={t('meeting.controls.toggleCamera')}
         title={t('meeting.controls.toggleCamera')}
         className={cn(
           'h-12 w-12 transition-colors',
-          isCameraOff
-            ? 'bg-red-500 text-white hover:bg-red-600'
-            : 'bg-gray-600/80 text-white hover:bg-gray-500/80',
+          isVideoEnabled
+            ? 'bg-gray-600/80 text-white hover:bg-gray-500/80'
+            : 'bg-red-500 text-white hover:bg-red-600',
           !hasVideo && 'opacity-40 cursor-not-allowed',
         )}
       >

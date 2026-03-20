@@ -80,7 +80,17 @@ export const MeetingPage = () => {
     fetchMeetingData();
   }, [id, navigate, fetchMeetingData]);
 
-  const { stream: localStream, isLoading: isMediaLoading, error: mediaError } = useLocalMedia();
+  const {
+    stream: localStream,
+    isLoading: isMediaLoading,
+    error: mediaError,
+    toggleAudio,
+    toggleVideo,
+    isAudioEnabled,
+    isVideoEnabled,
+    videoSendersRef,
+    audioSendersRef,
+  } = useLocalMedia();
 
   const {
     socket,
@@ -97,7 +107,7 @@ export const MeetingPage = () => {
   const { participants, participantCount } = useParticipants(socket, id);
 
   const { createPeerConnection, closePeerConnection, getPeerConnection, peerStatuses } =
-    usePeerConnections(localStream);
+    usePeerConnections(localStream, videoSendersRef, audioSendersRef);
 
   const { remoteStreams, addStream } = useRemoteStreams(getPeerConnection, peerStatuses);
 
@@ -155,6 +165,8 @@ export const MeetingPage = () => {
         stream: localStream,
         label: user?.name ?? t('meeting.start.youLabel'),
         isLocal: true,
+        isCameraOff: !isVideoEnabled,
+        isMuted: !isAudioEnabled,
       },
     ];
 
@@ -168,7 +180,16 @@ export const MeetingPage = () => {
     }
 
     return result;
-  }, [phase, localStream, remoteStreams, participants, user?.name, t]);
+  }, [
+    phase,
+    localStream,
+    remoteStreams,
+    participants,
+    user?.name,
+    t,
+    isVideoEnabled,
+    isAudioEnabled,
+  ]);
 
   const copyMeetingId = () => {
     if (!id) return;
@@ -275,9 +296,17 @@ export const MeetingPage = () => {
                   stream={localStream}
                   isLoading={isMediaLoading}
                   error={mediaError}
+                  isCameraOn={isVideoEnabled}
+                  isMicrophoneOn={isAudioEnabled}
                 />
                 <div className="mt-4 flex justify-center">
-                  <MediaControls stream={localStream} />
+                  <MediaControls
+                    stream={localStream}
+                    onToggleAudio={toggleAudio}
+                    onToggleVideo={toggleVideo}
+                    isAudioEnabled={isAudioEnabled}
+                    isVideoEnabled={isVideoEnabled}
+                  />
                 </div>
               </div>
 
@@ -356,7 +385,13 @@ export const MeetingPage = () => {
 
       <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-center py-5 pointer-events-none">
         <div className="pointer-events-auto flex items-center gap-6 rounded-full bg-gray-800/70 backdrop-blur-md px-6 py-3 shadow-lg ring-1 ring-white/10">
-          <MediaControls stream={localStream}>
+          <MediaControls
+            stream={localStream}
+            onToggleAudio={toggleAudio}
+            onToggleVideo={toggleVideo}
+            isAudioEnabled={isAudioEnabled}
+            isVideoEnabled={isVideoEnabled}
+          >
             <MediaControls.Leave onLeave={handleLeave} />
           </MediaControls>
 

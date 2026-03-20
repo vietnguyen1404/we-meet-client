@@ -91,6 +91,12 @@ export interface UseLocalMediaReturn {
   stream: MediaStream | null;
   isLoading: boolean;
   error: string | null;
+  toggleAudio: () => void;
+  toggleVideo: () => Promise<void>;
+  isAudioEnabled: boolean;
+  isVideoEnabled: boolean;
+  videoSendersRef: { current: Set<RTCRtpSender> };
+  audioSendersRef: { current: Set<RTCRtpSender> };
 }
 
 export type PeerConnectionStatus =

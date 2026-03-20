@@ -5,7 +5,11 @@ import type { PeerConnectionStatus, UsePeerConnectionsReturn } from '../types/me
 const MAX_PEER_CONNECTIONS = 3;
 const DEFAULT_STUN = 'stun:stun.l.google.com:19302';
 let stunWarnedOnce = false;
-export const usePeerConnections = (stream: MediaStream | null): UsePeerConnectionsReturn => {
+export const usePeerConnections = (
+  stream: MediaStream | null,
+  videoSendersRef?: { current: Set<RTCRtpSender> },
+  audioSendersRef?: { current: Set<RTCRtpSender> },
+): UsePeerConnectionsReturn => {
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const [peerStatuses, setPeerStatuses] = useState<Record<string, PeerConnectionStatus>>({});
   const isUnmountedRef = useRef<boolean>(false);
@@ -23,7 +27,11 @@ export const usePeerConnections = (stream: MediaStream | null): UsePeerConnectio
       if (map.has(peerId)) {
         const existing = map.get(peerId)!;
         try {
-          existing.getSenders().forEach((s) => existing.removeTrack(s));
+          existing.getSenders().forEach((s) => {
+            videoSendersRef?.current.delete(s);
+            audioSendersRef?.current.delete(s);
+            existing.removeTrack(s);
+          });
           existing.close();
         } catch (err) {
           console.warn(
@@ -65,9 +73,13 @@ export const usePeerConnections = (stream: MediaStream | null): UsePeerConnectio
 
       const pc = new RTCPeerConnection({ iceServers: [{ urls: stunUrl }] });
 
-      // Add local tracks
+      // Add local tracks and register senders
       if (stream !== null) {
-        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+        stream.getTracks().forEach((track) => {
+          const sender = pc.addTrack(track, stream);
+          if (track.kind === 'video') videoSendersRef?.current.add(sender);
+          else if (track.kind === 'audio') audioSendersRef?.current.add(sender);
+        });
       }
 
       // Track connection state changes
@@ -87,43 +99,54 @@ export const usePeerConnections = (stream: MediaStream | null): UsePeerConnectio
 
       return pc;
     },
-    [stream],
+    [stream, videoSendersRef, audioSendersRef],
   );
 
-  const closePeerConnection = useCallback((peerId: string): void => {
-    const map = peerConnectionsRef.current;
-    const pc = map.get(peerId);
-    if (!pc) return;
+  const closePeerConnection = useCallback(
+    (peerId: string): void => {
+      const map = peerConnectionsRef.current;
+      const pc = map.get(peerId);
+      if (!pc) return;
 
-    pc.getSenders().forEach((s) => {
+      pc.getSenders().forEach((s) => {
+        videoSendersRef?.current.delete(s);
+        audioSendersRef?.current.delete(s);
+        try {
+          pc.removeTrack(s);
+        } catch (err) {
+          console.warn(`[usePeerConnections] removeTrack error for "${peerId}":`, err);
+        }
+      });
+
       try {
-        pc.removeTrack(s);
+        pc.close();
       } catch (err) {
-        console.warn(`[usePeerConnections] removeTrack error for "${peerId}":`, err);
+        console.error(`[usePeerConnections] pc.close() error for "${peerId}":`, err);
       }
-    });
 
-    try {
-      pc.close();
-    } catch (err) {
-      console.error(`[usePeerConnections] pc.close() error for "${peerId}":`, err);
-    }
+      map.delete(peerId);
 
-    map.delete(peerId);
-
-    setPeerStatuses((prev) => {
-      const next = { ...prev };
-      delete next[peerId];
-      return next;
-    });
-  }, []);
+      setPeerStatuses((prev) => {
+        const next = { ...prev };
+        delete next[peerId];
+        return next;
+      });
+    },
+    [videoSendersRef, audioSendersRef],
+  );
 
   // Cleanup: close all peer connections on unmount
   useEffect(() => {
     const map = peerConnectionsRef.current;
+    const videoSenders = videoSendersRef?.current;
+    const audioSenders = audioSendersRef?.current;
     return () => {
       isUnmountedRef.current = true;
       map.forEach((pc) => {
+        pc.getSenders().forEach((s) => {
+          videoSenders?.delete(s);
+          audioSenders?.delete(s);
+        });
         try {
           pc.close();
         } catch {
@@ -133,7 +156,7 @@ export const usePeerConnections = (stream: MediaStream | null): UsePeerConnectio
       map.clear();
       setPeerStatuses({});
     };
-  }, []);
+  }, [videoSendersRef, audioSendersRef]);
 
   const getPeerConnection = useCallback((peerId: string): RTCPeerConnection | undefined => {
     return peerConnectionsRef.current.get(peerId);
