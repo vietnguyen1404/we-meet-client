@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth';
@@ -24,17 +24,6 @@ import { LocalVideoPreview } from './LocalVideoPreview';
 import { ParticipantList } from './ParticipantList';
 import { MeetingPhase, MeetingPhaseFlags } from '@/shared/constants/meeting';
 
-/**
- * Unified meeting page with a phase state machine:
- *
- *   PRE_JOIN  →  user sees lobby, local media preview, Join button
- *   JOINING   →  connecting socket + emitting join-room
- *   IN_CALL   →  full video grid with WebRTC
- *
- * Socket is created on page load (after meeting metadata loads) so we can
- * observe lobby presence via watch-meeting, but the user only enters the call
- * (join-room) after clicking Join.
- */
 export const MeetingPage = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -92,6 +81,15 @@ export const MeetingPage = () => {
     audioSendersRef,
   } = useLocalMedia();
 
+  const isVideoEnabledRef = useRef(isVideoEnabled);
+  const isAudioEnabledRef = useRef(isAudioEnabled);
+  useEffect(() => {
+    isVideoEnabledRef.current = isVideoEnabled;
+  }, [isVideoEnabled]);
+  useEffect(() => {
+    isAudioEnabledRef.current = isAudioEnabled;
+  }, [isAudioEnabled]);
+
   const {
     socket,
     connect,
@@ -121,9 +119,83 @@ export const MeetingPage = () => {
 
   useEffect(() => {
     if (!pendingJoin || !socket) return;
+    if (!socket.connected) {
+      return;
+    }
     setPendingJoin(false);
     joinRoom();
+    // Do NOT emit participant-media-state here — it races the server’s async
+    // join-room handler. The participants-confirm effect below emits it once
+    // the server confirms our join via participants-list.
   }, [pendingJoin, socket, joinRoom]);
+
+  // Centralised emit helper. Guards against:
+  //   socket being null / disconnected (prevents silent drops)
+  //   emitting before the user has formally joined the room (lobby phase)
+  const safeEmitMediaState = useCallback(
+    (video: boolean, audio: boolean) => {
+      if (!socket?.connected) return;
+      if (!MeetingPhaseFlags.isInCall(phase)) {
+        // Socket is connected via watch-meeting in the lobby but the user
+        // hasn’t joined the room yet — the server would reject the event.
+        return;
+      }
+      const payload = { meetingId: id, video, audio };
+      socket.emit('participant-media-state', payload);
+    },
+    [socket, phase, id],
+  );
+
+  // Reset flag when the socket disconnects so the initial emit fires again
+  // after reconnect (server resets media defaults when the socket rejoins).
+  const hasEmittedInitialMediaStateRef = useRef(false);
+  useEffect(() => {
+    if (!isConnected) {
+      hasEmittedInitialMediaStateRef.current = false;
+    }
+  }, [isConnected]);
+
+  // Emit our initial media state once the server confirms we are in the room,
+  // detected by seeing our own userId appear in participants-list.
+  // This serialises the emit AFTER the server’s async join-room handler,
+  // eliminating the race where participant-media-state arrives before the
+  // socket has been added to the room. Also handles post-reconnect rejoin.
+  useEffect(() => {
+    if (!MeetingPhaseFlags.isInCall(phase)) return;
+    if (hasEmittedInitialMediaStateRef.current) return;
+    if (!socket?.connected) return;
+    if (!userId) return;
+
+    const selfInRoom = participants.some((p) => p.userId === userId);
+    if (!selfInRoom) return;
+
+    hasEmittedInitialMediaStateRef.current = true;
+    const payload = {
+      meetingId: id,
+      video: isVideoEnabledRef.current,
+      audio: isAudioEnabledRef.current,
+    };
+
+    socket.emit('participant-media-state', payload);
+  }, [participants, phase, socket, userId, id]);
+
+  // Toggle handlers: toggle local media then broadcast the new state.
+  // Using refs to read current state avoids stale closures in async callbacks.
+  const handleToggleVideo = useCallback(async () => {
+    const nextVideo = !isVideoEnabledRef.current;
+    await toggleVideo();
+    // Update ref eagerly so a concurrent handleToggleAudio reads correct value.
+    isVideoEnabledRef.current = nextVideo;
+    safeEmitMediaState(nextVideo, isAudioEnabledRef.current);
+  }, [toggleVideo, safeEmitMediaState]);
+
+  const handleToggleAudio = useCallback(() => {
+    const nextAudio = !isAudioEnabledRef.current;
+    toggleAudio();
+    // Update ref eagerly so a concurrent handleToggleVideo reads correct value.
+    isAudioEnabledRef.current = nextAudio;
+    safeEmitMediaState(isVideoEnabledRef.current, nextAudio);
+  }, [toggleAudio, safeEmitMediaState]);
 
   // Once meeting metadata is loaded, connect the socket in the background and
   // emit watch-meeting so the lobby shows real-time participant presence
@@ -170,12 +242,19 @@ export const MeetingPage = () => {
       },
     ];
 
-    for (const [peerId, stream] of remoteStreams) {
-      const participant = participants.find((p) => p.socketId === peerId);
+    // Build remote tiles from the participant list so tiles appear immediately
+    // when a participant joins, even before their camera stream arrives.
+    // isCameraOff/isMuted come from signaling state, NOT stream inspection.
+    for (const participant of participants) {
+      if (participant.userId === userId) continue;
+      const peerId = participant.socketId;
+      const stream = remoteStreams.get(peerId) ?? null;
       result.push({
         peerId,
         stream,
-        label: participant?.name ?? peerId,
+        label: participant.name ?? peerId,
+        isCameraOff: participant.isVideoEnabled === false,
+        isMuted: participant.isAudioEnabled === false,
       });
     }
 
@@ -189,6 +268,7 @@ export const MeetingPage = () => {
     t,
     isVideoEnabled,
     isAudioEnabled,
+    userId,
   ]);
 
   const copyMeetingId = () => {
@@ -302,8 +382,8 @@ export const MeetingPage = () => {
                 <div className="mt-4 flex justify-center">
                   <MediaControls
                     stream={localStream}
-                    onToggleAudio={toggleAudio}
-                    onToggleVideo={toggleVideo}
+                    onToggleAudio={handleToggleAudio}
+                    onToggleVideo={handleToggleVideo}
                     isAudioEnabled={isAudioEnabled}
                     isVideoEnabled={isVideoEnabled}
                   />
@@ -387,8 +467,8 @@ export const MeetingPage = () => {
         <div className="pointer-events-auto flex items-center gap-6 rounded-full bg-gray-800/70 backdrop-blur-md px-6 py-3 shadow-lg ring-1 ring-white/10">
           <MediaControls
             stream={localStream}
-            onToggleAudio={toggleAudio}
-            onToggleVideo={toggleVideo}
+            onToggleAudio={handleToggleAudio}
+            onToggleVideo={handleToggleVideo}
             isAudioEnabled={isAudioEnabled}
             isVideoEnabled={isVideoEnabled}
           >

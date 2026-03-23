@@ -5,6 +5,7 @@ import type {
   ParticipantJoinedPayload,
   ParticipantLeftPayload,
   ParticipantsListPayload,
+  ParticipantMediaStatePayload,
   UseParticipantsReturn,
 } from '../types/meeting.types';
 
@@ -35,7 +36,7 @@ export const useParticipants = (
       const map: Record<string, ParticipantInfo> = {};
 
       for (const p of payload.participants) {
-        map[p.userId] = p; // key by userId to deduplicate reconnects
+        map[p.userId] = p;
       }
       setParticipantMap(map);
     };
@@ -43,10 +44,6 @@ export const useParticipants = (
     const handleParticipantJoined = (payload: ParticipantJoinedPayload) => {
       const participant = payload?.participant;
       if (!participant || typeof participant.userId !== 'string' || !participant.userId) {
-        console.warn(
-          '[useParticipants] participant-joined: malformed payload — missing or invalid participant.userId',
-          payload,
-        );
         return;
       }
 
@@ -59,19 +56,11 @@ export const useParticipants = (
     const handleParticipantLeft = (payload: ParticipantLeftPayload) => {
       const participant = payload?.participant;
       if (!participant || typeof participant.userId !== 'string' || !participant.userId) {
-        console.warn(
-          '[useParticipants] participant-left: malformed payload — missing or invalid participant.userId',
-          payload,
-        );
         return;
       }
 
       const { userId } = participant;
       if (!participantMapRef.current[userId]) {
-        console.warn(
-          '[useParticipants] participant-left: userId not found in map, treating as no-op',
-          userId,
-        );
         return;
       }
       setParticipantMap((prev) => {
@@ -81,14 +70,33 @@ export const useParticipants = (
       });
     };
 
+    const handleMediaState = (payload: ParticipantMediaStatePayload) => {
+      if (!payload || typeof payload.userId !== 'string' || !payload.userId) {
+        return;
+      }
+
+      const { userId, video, audio } = payload;
+      setParticipantMap((prev) => {
+        if (!prev[userId]) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [userId]: { ...prev[userId], isVideoEnabled: video, isAudioEnabled: audio },
+        };
+      });
+    };
+
     socket.on('participants-list', handleParticipantsList);
     socket.on('participant-joined', handleParticipantJoined);
     socket.on('participant-left', handleParticipantLeft);
+    socket.on('participant-media-state', handleMediaState);
 
     return () => {
       socket.off('participants-list', handleParticipantsList);
       socket.off('participant-joined', handleParticipantJoined);
       socket.off('participant-left', handleParticipantLeft);
+      socket.off('participant-media-state', handleMediaState);
 
       setParticipantMap({});
     };

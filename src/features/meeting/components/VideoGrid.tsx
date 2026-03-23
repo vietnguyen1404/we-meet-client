@@ -6,48 +6,60 @@ import { ParticipantAvatar } from './ParticipantAvatar';
 
 interface TileProps {
   tile: VideoTile;
-  /** When true the tile is the only one — it fills the entire container. */
-  solo?: boolean;
 }
 
-const Tile = ({ tile, solo = false }: TileProps) => {
+const Tile = ({ tile }: TileProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const hasVideo =
+    !tile.isCameraOff && tile.stream !== null && tile.stream.getVideoTracks().length > 0;
 
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
-    el.srcObject = tile.stream;
-  }, [tile.stream]);
 
-  const wrapperClass = cn(
-    'relative overflow-hidden rounded-xl bg-gray-800',
-    solo && 'w-full h-full',
-  );
+    if (hasVideo && tile.stream) {
+      el.srcObject = tile.stream;
+    } else {
+      el.srcObject = null;
+    }
 
-  if (tile.isCameraOff || !tile.stream) {
-    return (
-      <ParticipantAvatar displayName={tile.label} isMuted={tile.isMuted} className={wrapperClass} />
-    );
-  }
+    return () => {
+      if (el) el.srcObject = null;
+    };
+  }, [hasVideo, tile.stream]);
 
   return (
-    <div className={wrapperClass}>
+    <div className="relative w-full h-full overflow-hidden rounded-xl bg-gray-800">
+      <ParticipantAvatar
+        displayName={tile.label}
+        isMuted={tile.isMuted}
+        className="absolute inset-0"
+      />
+
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted={tile.isLocal}
-        className={cn('w-full h-full object-cover', tile.isLocal && 'scale-x-[-1]')}
+        className={cn(
+          'absolute inset-0 w-full h-full object-cover',
+          tile.isLocal && 'scale-x-[-1]',
+          !hasVideo && 'hidden',
+        )}
       />
 
-      <span className="absolute bottom-3 left-3 text-xs text-white/90 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-md">
-        {tile.label}
-      </span>
-
-      {tile.isMuted && (
-        <span className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-1">
-          <MicOffIcon className="w-4 h-4 text-red-400" />
-        </span>
+      {hasVideo && (
+        <>
+          <span className="absolute bottom-3 left-3 text-xs text-white/90 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-md">
+            {tile.label}
+          </span>
+          {tile.isMuted && (
+            <span className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-1">
+              <MicOffIcon className="w-4 h-4 text-red-400" />
+            </span>
+          )}
+        </>
       )}
     </div>
   );
