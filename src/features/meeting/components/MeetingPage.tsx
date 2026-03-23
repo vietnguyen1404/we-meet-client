@@ -11,10 +11,12 @@ import {
   useLocalMedia,
   useMeetingSocket,
   useParticipants,
+  useParticipantToasts,
   usePeerConnections,
   useSignaling,
   useRemoteStreams,
 } from '../hooks';
+import { showToast } from '@/shared/utils/toast';
 import { meetingsApi } from '../services/meetingService';
 import { SOCKET_STATUS } from '../types/meeting.types';
 import type { Meeting, ApiError, VideoTile } from '../types/meeting.types';
@@ -109,7 +111,16 @@ export const MeetingPage = () => {
 
   const { remoteStreams, addStream } = useRemoteStreams(getPeerConnection, peerStatuses);
 
-  useSignaling(socket, id, createPeerConnection, closePeerConnection, getPeerConnection, addStream);
+  const { negotiationErrors } = useSignaling(
+    socket,
+    id,
+    createPeerConnection,
+    closePeerConnection,
+    getPeerConnection,
+    addStream,
+  );
+
+  useParticipantToasts(socket, phase, userId);
 
   // pendingJoin is set to true by handleJoin and consumed by the effect below.
   // This decouples joinRoom() from the connect() call, ensuring useSignaling's
@@ -220,8 +231,9 @@ export const MeetingPage = () => {
       setPhase(MeetingPhase.IN_CALL);
     } catch {
       setPhase(MeetingPhase.PRE_JOIN);
+      showToast.error(t('meeting.toast.joinFailed'), 'join-failed');
     }
-  }, [connect]);
+  }, [connect, t]);
 
   const handleLeave = useCallback(() => {
     leaveRoom();
@@ -274,7 +286,28 @@ export const MeetingPage = () => {
   const copyMeetingId = () => {
     if (!id) return;
     navigator.clipboard.writeText(id);
+    showToast.success(t('meeting.toast.roomIdCopied'), 'copy-room-id');
   };
+
+  // Show toast when media permission is denied or device not found
+  const prevMediaErrorRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (mediaError && mediaError !== prevMediaErrorRef.current) {
+      showToast.error(mediaError, 'media-error');
+    }
+    prevMediaErrorRef.current = mediaError;
+  }, [mediaError]);
+
+  // Show toast for WebRTC negotiation errors
+  const prevNegotiationErrorsRef = useRef<Record<string, string | null>>({});
+  useEffect(() => {
+    for (const [peerId, message] of Object.entries(negotiationErrors)) {
+      if (message && prevNegotiationErrorsRef.current[peerId] !== message) {
+        showToast.error(t('meeting.toast.webrtcError'), `webrtc-${peerId}`);
+      }
+    }
+    prevNegotiationErrorsRef.current = negotiationErrors;
+  }, [negotiationErrors, t]);
 
   if (MeetingPhaseFlags.isPreJoin(phase) || MeetingPhaseFlags.isJoining(phase)) {
     if (isLoading) {

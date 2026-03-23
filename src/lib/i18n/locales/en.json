@@ -123,6 +123,14 @@
     "status": {
       "active": "ACTIVE",
       "ended": "ENDED"
+    },
+    "toast": {
+      "roomIdCopied": "Room ID copied to clipboard",
+      "userJoined": "{{name}} joined the room",
+      "userLeft": "{{name}} left the room",
+      "joinFailed": "Failed to join meeting. Please try again.",
+      "mediaPermissionDenied": "Camera or microphone access was denied",
+      "webrtcError": "Connection issue with a participant"
     }
   }
 }
