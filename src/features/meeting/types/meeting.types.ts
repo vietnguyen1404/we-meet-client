@@ -55,6 +55,17 @@ export interface ParticipantInfo {
   name: string;
   isHost: boolean;
   joinedAt: number;
+  /** Reflects the remote participant's camera state, driven by signaling. Defaults to true (server assumes camera ON on join). */
+  isVideoEnabled: boolean;
+  /** Reflects the remote participant's microphone state, driven by signaling. Defaults to true (server assumes mic ON on join). */
+  isAudioEnabled: boolean;
+}
+
+export interface ParticipantMediaStatePayload {
+  meetingId: string;
+  userId: string;
+  video: boolean;
+  audio: boolean;
 }
 
 /** Client → Server: join the active video call */
