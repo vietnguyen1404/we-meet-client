@@ -104,7 +104,6 @@ export const useMeetingSocket = (meetingId: string | undefined): UseMeetingSocke
     isUnmountedRef.current = false;
 
     const sock = getMeetingSocket(env.socketUrl, accessToken);
-    console.log('SOCK', sock);
 
     socketRef.current = sock;
 
