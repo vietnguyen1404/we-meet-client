@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage, DashboardPage, ProtectedRoute } from '@/features/auth';
-import { StartMeetingPage, MeetingPage } from '@/features/meeting';
+import { MeetingPage } from '@/features/meeting';
+import { StartMeetingPage } from '@/features/meeting/components/startMeetingPage';
 
 export const router = createBrowserRouter([
   {

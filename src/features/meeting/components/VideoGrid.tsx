@@ -31,11 +31,7 @@ const Tile = ({ tile }: TileProps) => {
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-xl bg-gray-800">
-      <ParticipantAvatar
-        displayName={tile.label}
-        isMuted={tile.isMuted}
-        className="absolute inset-0"
-      />
+      <ParticipantAvatar displayName={tile.label} isMuted={tile.isMuted} className="h-full" />
 
       <video
         ref={videoRef}

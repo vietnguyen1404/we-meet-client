@@ -1,5 +1,3 @@
-export { StartMeetingPage } from './components/StartMeetingPage';
-export { MeetingLobbyPage } from './components/MeetingLobbyPage';
 export { MeetingPage } from './components/MeetingPage';
 export { ParticipantList } from './components/ParticipantList';
 export { LocalVideoPreview } from './components/LocalVideoPreview';

@@ -13,7 +13,7 @@ import { useMeetingSocket, useParticipants, useLocalMedia } from '../hooks';
 import { SOCKET_STATUS } from '../types/meeting.types';
 import type { Meeting, ApiError } from '../types/meeting.types';
 import { ParticipantList } from './ParticipantList';
-import { LocalVideoPreview } from './LocalVideoPreview';
+import { LocalVideoPreview } from '../components/LocalVideoPreview';
 
 export const MeetingLobbyPage = () => {
   const { t } = useTranslation();
@@ -209,6 +209,8 @@ export const MeetingLobbyPage = () => {
                 stream={localStream}
                 isLoading={isMediaLoading}
                 error={mediaError}
+                isCameraOn={true}
+                isMicrophoneOn={true}
               />
             </div>
           </div>
