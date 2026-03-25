@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Heading, Text, Button } from '@/components/ui';
 import { Header } from '@/components/layout/Header';
 
-export const DashboardPage = () => {
+const DashboardPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -61,3 +61,5 @@ export const DashboardPage = () => {
     </div>
   );
 };
+
+export default DashboardPage;

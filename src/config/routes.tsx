@@ -1,7 +1,12 @@
+import { Suspense, lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { LoginPage, DashboardPage, ProtectedRoute } from '@/features/auth';
-import { MeetingPage } from '@/features/meeting';
-import { StartMeetingPage } from '@/features/meeting/components/startMeetingPage';
+import LoadingScreen from '@/components/loading/LoadingScreen';
+
+const LoginPage = lazy(() => import('@/features/auth/components/loginPage'));
+const DashboardPage = lazy(() => import('@/features/auth/components/dashboardPage'));
+const ProtectedRoute = lazy(() => import('@/features/auth/components/protectedRoute'));
+const StartMeetingPage = lazy(() => import('@/features/meeting/components/startMeetingPage'));
+const MeetingPage = lazy(() => import('@/features/meeting/components/MeetingPage'));
 
 export const router = createBrowserRouter([
   {
@@ -10,22 +15,42 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
-    element: <ProtectedRoute />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <ProtectedRoute />
+      </Suspense>
+    ),
     children: [
       {
         path: '/dashboard',
-        element: <DashboardPage />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <DashboardPage />
+          </Suspense>
+        ),
       },
       {
         path: '/meetings/start',
-        element: <StartMeetingPage />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <StartMeetingPage />
+          </Suspense>
+        ),
       },
       {
         path: '/meetings/:id',
-        element: <MeetingPage />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <MeetingPage />
+          </Suspense>
+        ),
       },
     ],
   },

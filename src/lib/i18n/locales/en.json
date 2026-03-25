@@ -4,7 +4,13 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "cancel": "Cancel",
-    "logout": "Logout"
+    "logout": "Logout",
+    "loadingStatus": {
+      "connecting": "Establishing secure connection…",
+      "syncing": "Syncing your session…",
+      "almostReady": "Almost ready…",
+      "secure": "Encrypted & Secure Ecosystem"
+    }
   },
   "login": {
     "title": "Log in to VideoMeet",

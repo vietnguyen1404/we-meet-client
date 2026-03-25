@@ -1,4 +1,4 @@
-export { MeetingPage } from './components/MeetingPage';
+export { default as MeetingPage } from './components/MeetingPage';
 export { ParticipantList } from './components/ParticipantList';
 export { LocalVideoPreview } from './components/LocalVideoPreview';
 export { MediaControls } from './components/MediaControls';

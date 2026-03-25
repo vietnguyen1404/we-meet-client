@@ -26,7 +26,7 @@ import { LocalVideoPreview } from './LocalVideoPreview';
 import { ParticipantList } from './ParticipantList';
 import { MeetingPhase, MeetingPhaseFlags } from '@/shared/constants/meeting';
 
-export const MeetingPage = () => {
+const MeetingPage = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -524,3 +524,5 @@ export const MeetingPage = () => {
     </div>
   );
 };
+
+export default MeetingPage;
