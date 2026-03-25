@@ -9,7 +9,7 @@ import EyeOffIcon from '@/assets/icons/eye-off.svg?react';
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 
-export const LoginPage = () => {
+const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, isLoading: authLoading } = useAuth();
@@ -161,3 +161,5 @@ export const LoginPage = () => {
     </div>
   );
 };
+
+export default LoginPage;

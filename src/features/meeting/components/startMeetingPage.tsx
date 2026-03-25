@@ -19,7 +19,6 @@ import ShieldCheckIcon from '@/assets/icons/shield-check.svg?react';
 import { meetingsApi } from '../services/meetingService';
 import type { ApiError } from '../types/meeting.types';
 
-// Hoisted static JSX — avoids re-creation on every render (rendering-hoist-jsx)
 const backgroundDecoration = (
   <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
     <div className="absolute -top-[10%] -left-[10%] w-1/2 h-1/2 bg-primary/5 blur-[150px] rounded-full" />
@@ -27,7 +26,7 @@ const backgroundDecoration = (
   </div>
 );
 
-export const StartMeetingPage = () => {
+const StartMeetingPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -285,3 +284,5 @@ export const StartMeetingPage = () => {
     </div>
   );
 };
+
+export default StartMeetingPage;
