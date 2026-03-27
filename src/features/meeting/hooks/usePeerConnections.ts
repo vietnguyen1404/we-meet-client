@@ -135,8 +135,8 @@ export const usePeerConnections = (
     [videoSendersRef, audioSendersRef],
   );
 
-  // Cleanup: close all peer connections on unmount
   useEffect(() => {
+    isUnmountedRef.current = false;
     const map = peerConnectionsRef.current;
     const videoSenders = videoSendersRef?.current;
     const audioSenders = audioSendersRef?.current;
