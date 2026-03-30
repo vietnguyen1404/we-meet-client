@@ -1,415 +1,94 @@
 ---
-description: 'ReactJS development standards and best practices'
+description: 'ReactJS + TypeScript development standards and best practices'
 applyTo: '**/*.jsx, **/*.tsx, **/*.js, **/*.ts, **/*.css, **/*.scss'
 ---
 
-# ReactJS Development Instructions
+# React + TypeScript Development Instructions
 
-Instructions for building high-quality ReactJS applications with modern patterns, hooks, and best practices following the official React documentation at https://react.dev.
-
-## Project Context
-- Latest React version (React 19+)
-- TypeScript for type safety (when applicable)
-- Functional components with hooks as default
-- Follow React's official style guide and best practices
-- Use modern build tools (Vite, Create React App, or custom Webpack setup)
-- Implement proper component composition and reusability patterns
-
-## Development Standards
-
-### Architecture
-- Use functional components with hooks as the primary pattern
-- Implement component composition over inheritance
-- Organize components by feature or domain for scalability
-- Separate presentational and container components clearly
-- Use custom hooks for reusable stateful logic
-- Implement proper component hierarchies with clear data flow
-
-### TypeScript Integration
-- Use TypeScript interfaces for props, state, and component definitions
-- Define proper types for event handlers and refs
-- Implement generic components where appropriate
-- Use strict mode in `tsconfig.json` for type safety
-- Leverage React's built-in types (`React.FC`, `React.ComponentProps`, etc.)
-- Create union types for component variants and states
-
-### Component Design
-- Follow the single responsibility principle for components
-- Use descriptive and consistent naming conventions
-- Implement proper prop validation with TypeScript or PropTypes
-- Design components to be testable and reusable
-- Keep components small and focused on a single concern
-- Use composition patterns (render props, children as functions)
-
-### State Management
-- Use `useState` for local component state
-- Implement `useReducer` for complex state logic
-- Leverage `useContext` for sharing state across component trees
-- Consider external state management (Redux Toolkit, Zustand) for complex applications
-- Implement proper state normalization and data structures
-- Use React Query or SWR for server state management
-
-### Hooks and Effects
-- Use `useEffect` with proper dependency arrays to avoid infinite loops
-- Implement cleanup functions in effects to prevent memory leaks
-- Use `useMemo` and `useCallback` for performance optimization when needed
-- Create custom hooks for reusable stateful logic
-- Follow the rules of hooks (only call at the top level)
-- Use `useRef` for accessing DOM elements and storing mutable values
-
-### Styling
-- Use CSS Modules, Styled Components, or modern CSS-in-JS solutions
-- Implement responsive design with mobile-first approach
-- Follow BEM methodology or similar naming conventions for CSS classes
-- Use CSS custom properties (variables) for theming
-- Implement consistent spacing, typography, and color systems
-- Ensure accessibility with proper ARIA attributes and semantic HTML
-
-### Performance Optimization
-- Use `React.memo` for component memoization when appropriate
-- Implement code splitting with `React.lazy` and `Suspense`
-- Optimize bundle size with tree shaking and dynamic imports
-- Use `useMemo` and `useCallback` judiciously to prevent unnecessary re-renders
-- Implement virtual scrolling for large lists
-- Profile components with React DevTools to identify performance bottlenecks
-
-### Data Fetching
-- Use modern data fetching libraries (React Query, SWR, Apollo Client)
-- Implement proper loading, error, and success states
-- Handle race conditions and request cancellation
-- Use optimistic updates for better user experience
-- Implement proper caching strategies
-- Handle offline scenarios and network errors gracefully
-
-### Error Handling
-- Implement Error Boundaries for component-level error handling
-- Use proper error states in data fetching
-- Implement fallback UI for error scenarios
-- Log errors appropriately for debugging
-- Handle async errors in effects and event handlers
-- Provide meaningful error messages to users
-
-### Forms and Validation
-- Use controlled components for form inputs
-- Implement proper form validation with libraries like Formik, React Hook Form
-- Handle form submission and error states appropriately
-- Implement accessibility features for forms (labels, ARIA attributes)
-- Use debounced validation for better user experience
-- Handle file uploads and complex form scenarios
-
-### Routing
-- Use React Router for client-side routing
-- Implement nested routes and route protection
-- Handle route parameters and query strings properly
-- Implement lazy loading for route-based code splitting
-- Use proper navigation patterns and back button handling
-- Implement breadcrumbs and navigation state management
-
-### Testing
-- Write unit tests for components using React Testing Library
-- Test component behavior, not implementation details
-- Use Jest for test runner and assertion library
-- Implement integration tests for complex component interactions
-- Mock external dependencies and API calls appropriately
-- Test accessibility features and keyboard navigation
-
-### Security
-- Sanitize user inputs to prevent XSS attacks
-- Validate and escape data before rendering
-- Use HTTPS for all external API calls
-- Implement proper authentication and authorization patterns
-- Avoid storing sensitive data in localStorage or sessionStorage
-- Use Content Security Policy (CSP) headers
-
-### Accessibility
-- Use semantic HTML elements appropriately
-- Implement proper ARIA attributes and roles
-- Ensure keyboard navigation works for all interactive elements
-- Provide alt text for images and descriptive text for icons
-- Implement proper color contrast ratios
-- Test with screen readers and accessibility tools
-
-## Implementation Process
-1. Plan component architecture and data flow
-2. Set up project structure with proper folder organization
-3. Define TypeScript interfaces and types
-4. Implement core components with proper styling
-5. Add state management and data fetching logic
-6. Implement routing and navigation
-7. Add form handling and validation
-8. Implement error handling and loading states
-9. Add testing coverage for components and functionality
-10. Optimize performance and bundle size
-11. Ensure accessibility compliance
-12. Add documentation and code comments
-
-## Additional Guidelines
-- Follow React's naming conventions (PascalCase for components, camelCase for functions)
-- Use meaningful commit messages and maintain clean git history
-- Implement proper code splitting and lazy loading strategies
-- Document complex components and custom hooks with JSDoc
-- Use ESLint and Prettier for consistent code formatting
-- Keep dependencies up to date and audit for security vulnerabilities
-- Implement proper environment configuration for different deployment stages
-- Use React Developer Tools for debugging and performance analysis
-
-## Common Patterns
-- Higher-Order Components (HOCs) for cross-cutting concerns
-- Render props pattern for component composition
-- Compound components for related functionality
-- Provider pattern for context-based state sharing
-- Container/Presentational component separation
-- Custom hooks for reusable logic extraction
-
-## 🌍 Internationalization & Constant Enforcement
-
-All role values and user-facing strings must follow strict constant + i18n rules.
-
-Never hardcode role comparisons like:
-
-member.role === 'HOST'
-
-Instead, define centralized constants or enums:
-
-// constants/roles.ts
-export const MEETING_ROLE = {
-  HOST: 'HOST',
-  PARTICIPANT: 'PARTICIPANT',
-} as const;
-
-export type MeetingRole =
-  (typeof MEETING_ROLE)[keyof typeof MEETING_ROLE];
-
-Usage:
-
-member.role === MEETING_ROLE.HOST
-
-Additionally, NEVER hardcode UI text such as:
-
-<span>Host</span>
-
-All user-facing text must use i18n translation keys.
-
-Example:
-
-import { useTranslation } from 'react-i18next';
-import { MEETING_ROLE } from '@/constants/roles';
-
-const { t } = useTranslation();
-
-{member.role === MEETING_ROLE.HOST && (
-  <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
-    {t('meeting.role.host')}
-  </span>
-)}
-
-Translation file example:
-
-{
-  "meeting": {
-    "role": {
-      "host": "Host",
-      "participant": "Participant"
-    }
-  }
-}
-
-Rules:
-- No hardcoded role strings.
-- No hardcoded UI text.
-- Always use centralized constants.
-- Always use i18n for display text.
-- Translation keys must follow feature-based namespaces (e.g., meeting.role.host).
-
-This is mandatory for scalability, localization readiness, and long-term maintainability.
-
-## SVG Usage Rule (React + Vite)
-
-All SVG icons must be imported as React components using the `?react` suffix.
-
-Never use:
-- `<img src="/icons/icon.svg" />`
-- Raw SVG inline copy-paste
-- Default SVG import without `?react`
-
-Correct usage:
-
-import EyeOffIcon from '@/assets/icons/eye-off.svg?react';
-
-Then use it as a React component:
-
-<EyeOffIcon className="w-4 h-4 text-muted-foreground" />
-
-Rules:
-- Always import SVG with `?react`
-- Always treat SVG as a component
-- Control size via Tailwind classes (w-*, h-*)
-- Control color using `text-*` utilities (SVG must use currentColor)
-- Do not hardcode width/height inside SVG file unless absolutely necessary
-- Icons must live under `@/assets/icons`
-
-This ensures consistency, tree-shaking optimization, and styling flexibility.
-
-## 🎨 Styling Convention (Global CSS & SCSS Rules)
-
-To maintain scalability and clean architecture, follow these strict styling rules:
-
-### 1️⃣ index.css Rules
-
-The `index.css` file must ONLY contain:
-
-- Tailwind directives (@tailwind base, components, utilities)
-- Global CSS imports
-- CSS variable imports (if needed)
-
-DO NOT:
-- Define custom CSS rules
-- Add component-specific styles
-- Write layout or utility classes
-- Add overrides directly
-
-Example (correct):
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import './styles/variables.scss';
-@import './styles/global.scss';
+Standards for building scalable, maintainable React applications using TypeScript, modern hooks, and consistent architectural patterns.
 
 ---
 
-### 2️⃣ Custom Styling Must Use SCSS
+## 1. Architecture
 
-If custom styling is required:
+- Functional components with hooks as the **only** pattern — no class components
+- Feature/domain-based folder organization
+- Separate presentational and container components
+- Custom hooks for all reusable stateful logic
+- Composition over inheritance — always
 
-- Use SCSS (.scss)
-- Create a separate file under `/styles`
-- Follow modular structure
-- Never write large custom CSS inside components unless using Tailwind utilities
+### Folder Structure
 
----
-
-### 3️⃣ Folder Structure (Best Practice)
-
+```
 src/
+  assets/
+    icons/          # SVG icons only (imported as React components)
+  components/
+    layout/         # Header, Footer, Sidebar, PageLayout
+    ui/             # Button, Input, Modal, Card, Tooltip
+      Typography/   # Heading, Text
+  features/         # Domain-specific feature modules
+  hooks/            # Shared custom hooks
+  constants/        # Enums, flags, role maps
   styles/
     _variables.scss
     _mixins.scss
     global.scss
-    components/
-      _meeting.scss
-      _button.scss
-
-Rules:
-- Use partials with `_` prefix
-- Group styles by domain or component
-- Keep styles maintainable and scoped
+  pages/            # Route-level page components
+```
 
 ---
 
-### 4️⃣ Tailwind First Approach
+## 2. TypeScript
 
-- Prefer Tailwind utility classes
-- Use SCSS only when:
-  - Complex animations
-  - Reusable style patterns
-  - Theming
-  - CSS variables
-  - 3rd-party overrides
+- `strict: true` in `tsconfig.json` — non-negotiable
+- Interfaces for props, state, and API shapes
+- No `any` — use `unknown` and narrow explicitly
+- Use React built-in types: `React.ReactNode`, `React.ComponentProps`, `React.RefObject`
+- Union types for variants and states
 
-Avoid writing custom CSS for things Tailwind already solves.
+```ts
+type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
----
-
-### 5️⃣ Maintain Clean Architecture
-
-- No random CSS files scattered in feature folders
-- No inline `<style>` tags
-- No styling logic mixed with business logic
-- No global pollution
-
-Styling must be predictable, modular, and scalable.
-
-This rule is mandatory for long-term maintainability.
-
-## 🧩 Reusable Component Convention (Layout, UI, Typography)
-
-To ensure consistency, scalability, and maintainability, the following component conventions are **mandatory**.
-
-### 1️⃣ Component Categorization
-
-All components must belong to **one of the following categories**:
-
-#### A. Layout Components
-Used for **global or page-level structure**.
-
-Examples:
-- Header
-- Footer
-- Sidebar
-- Container
-- PageLayout
-
-Rules:
-- ❌ No business logic
-- ❌ No data fetching
-- ❌ No direct API calls
-- ✅ Accept `children` for composition
-- ✅ Handle layout, spacing, and structure only
-
-```tsx
-type HeaderProps = {
-  children?: React.ReactNode;
-};
-
-export function Header({ children }: HeaderProps) {
-  return (
-    <header className="border-b bg-background">
-      {children}
-    </header>
-  );
+interface ButtonProps {
+  variant?: ButtonVariant;
+  children: React.ReactNode;
+  onClick?: () => void;
 }
 ```
 
-### B. UI Components (Reusable Elements)
+---
 
-Small, reusable building blocks used across multiple features.
+## 3. Component Design
 
-Examples:
-- Button
-- Input
-- Select
-- Modal
-- Card
-- Tooltip
+### Rules
+- One component per file, exported via `index.ts`
+- PascalCase for components, camelCase for functions/hooks
+- No raw `h1–h6`, `p`, or `span` in pages — use the Typography system
+- No page-specific logic inside shared/UI components
+- No hardcoded UI text — all strings go through i18n
 
-Rules:
-- ❌ No page-specific logic
-- ❌ No hardcoded UI text
-- ❌ No direct dependency on routes or feature state
-- ✅ Accept `variant`, `size`, and `state` via props
-- ✅ Styled primarily with Tailwind utilities
-- ✅ Must be reusable across domains
+### Component Categories
+
+#### A. Layout Components
+Structure only — no business logic, no API calls.
 
 ```tsx
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export function PageLayout({ children }: { children: React.ReactNode }) {
+  return <div className="min-h-screen flex flex-col">{children}</div>;
+}
+```
 
-type ButtonProps = {
-  variant?: ButtonVariant;
-  children: React.ReactNode;
-};
+#### B. UI Components
+Reusable building blocks, styled with Tailwind, variant-driven.
 
-export function Button({
-  variant = 'primary',
-  children,
-}: ButtonProps) {
+```tsx
+export function Button({ variant = 'primary', children }: ButtonProps) {
   const styles: Record<ButtonVariant, string> = {
     primary: 'bg-primary text-white',
     secondary: 'bg-muted text-foreground',
     ghost: 'bg-transparent hover:bg-muted',
   };
-
   return (
     <button className={`px-4 py-2 rounded ${styles[variant]}`}>
       {children}
@@ -418,39 +97,15 @@ export function Button({
 }
 ```
 
----
-
-### C. Typography System (Mandatory)
-
-❗ Direct usage of raw HTML typography tags (`h1`, `p`, `span`) inside pages is NOT allowed.
-
-All text must go through a centralized Typography system.
-
-Components:
-- Heading
-- Text
-- Label (optional)
-
-Rules:
-- ✅ Centralized typography control
-- ✅ Consistent font size, weight, spacing
-- ❌ No inline typography styling in pages
-- ❌ No direct HTML text tags in pages
+#### C. Typography System
+Centralized — never bypass it.
 
 ```tsx
+// Heading.tsx
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
-type HeadingProps = {
-  level?: HeadingLevel;
-  children: React.ReactNode;
-};
-
-export function Heading({
-  level = 1,
-  children,
-}: HeadingProps) {
+export function Heading({ level = 1, children }: { level?: HeadingLevel; children: React.ReactNode }) {
   const Tag = `h${level}` as const;
-
   const styles: Record<HeadingLevel, string> = {
     1: 'text-4xl font-bold',
     2: 'text-3xl font-semibold',
@@ -459,176 +114,248 @@ export function Heading({
     5: 'text-lg font-medium',
     6: 'text-base font-medium',
   };
-
   return <Tag className={styles[level]}>{children}</Tag>;
 }
-```
 
-```tsx
+// Text.tsx
 type TextVariant = 'body' | 'caption' | 'muted';
 
-type TextProps = {
-  variant?: TextVariant;
-  children: React.ReactNode;
-};
-
-export function Text({
-  variant = 'body',
-  children,
-}: TextProps) {
+export function Text({ variant = 'body', children }: { variant?: TextVariant; children: React.ReactNode }) {
   const styles: Record<TextVariant, string> = {
     body: 'text-base text-foreground',
     caption: 'text-sm text-muted-foreground',
     muted: 'text-sm text-muted-foreground/80',
   };
-
   return <p className={styles[variant]}>{children}</p>;
 }
 ```
 
----
-
-### 2. Folder Structure Requirement
-
-All reusable components must live under `src/components`.
-
-```txt
-src/components/
-  layout/
-    Header/
-      Header.tsx
-      index.ts
-    Footer/
-      Footer.tsx
-      index.ts
-
-  ui/
-    Button/
-      Button.tsx
-      index.ts
-    Typography/
-      Heading.tsx
-      Text.tsx
-      index.ts
-```
-
-Rules:
-- One component per file
-- Public API via `index.ts`
-- No deep relative imports (`../../../`)
-
----
-
-### 3. Page Components Rule
-
-Page components must only compose layout + UI components.
+#### D. Page Components
+Compose layout + UI only — no inline logic, no raw HTML tags.
 
 ```tsx
 export default function HomePage() {
   return (
-    <>
+    <PageLayout>
       <Header />
       <main className="p-6">
-        <Heading level={1}>Home</Heading>
-        <Text>Welcome to the application</Text>
-        <Button variant="primary">
-          Get Started
-        </Button>
+        <Heading level={1}>{t('home.title')}</Heading>
+        <Text>{t('home.description')}</Text>
+        <Button variant="primary">{t('home.cta')}</Button>
       </main>
-    </>
+    </PageLayout>
   );
 }
 ```
 
 ---
 
-### 4. Anti-Patterns (Strictly Forbidden)
+## 4. Constants & Enums
 
-- ❌ Copy-pasting Tailwind classes across pages
-- ❌ Styling directly in page components
-- ❌ Hardcoded text inside UI components
-- ❌ Feature-specific logic inside shared components
-- ❌ Mixing business logic with layout components
+Never hardcode string comparisons. Centralize all enums and derived state flags.
+
+```ts
+// constants/meeting.ts
+export enum MeetingPhase {
+  PRE_JOIN = 'PRE_JOIN',
+  JOINING  = 'JOINING',
+  IN_CALL  = 'IN_CALL',
+}
+
+export const MeetingPhaseFlags = {
+  isPreJoin: (p: MeetingPhase) => p === MeetingPhase.PRE_JOIN,
+  isJoining: (p: MeetingPhase) => p === MeetingPhase.JOINING,
+  isInCall:  (p: MeetingPhase) => p === MeetingPhase.IN_CALL,
+};
+
+export const MEETING_ROLE = {
+  HOST:        'HOST',
+  PARTICIPANT: 'PARTICIPANT',
+} as const;
+
+export type MeetingRole = typeof MEETING_ROLE[keyof typeof MEETING_ROLE];
+```
+
+**Usage:**
+```ts
+// ✅
+if (MeetingPhaseFlags.isJoining(phase)) { ... }
+if (member.role === MEETING_ROLE.HOST) { ... }
+
+// ❌
+if (phase === 'JOINING') { ... }
+const isJoining = phase === 'JOINING';
+```
 
 ---
 
-### 5. Design Philosophy
+## 5. Internationalization (i18n)
 
-- Composition over configuration
-- Small, predictable components
-- Centralized design decisions
-- Easy refactoring and theming
-- Scales well for large teams
+All user-facing text must go through translation keys — no exceptions.
 
-## Code Style Rules
+```ts
+// ✅
+const { t } = useTranslation();
+<span>{t('meeting.role.host')}</span>
 
-### 1. Avoid inline comparisons in JSX / logic
+// ❌
+<span>Host</span>
+```
 
-- Do NOT write direct comparisons like:
-  `phase === 'JOINING'`
+Translation keys follow feature-based namespaces:
 
-- Do NOT define derived boolean variables inside components:
-  ```ts
-  const isJoining = phase === 'JOINING'; ❌
-  ```
-
-- ALWAYS define reusable state helpers in a dedicated constants module  
-  (e.g. `@/shared/constants/meeting.ts`)
-
-- Example:
-
-  ```ts
-  // shared/constants/meeting.ts
-  export enum MeetingPhase {
-    PRE_JOIN = 'PRE_JOIN',
-    JOINING = 'JOINING',
-    IN_CALL = 'IN_CALL',
+```json
+{
+  "meeting": {
+    "role": { "host": "Host", "participant": "Participant" }
   }
-
-  export const MeetingPhaseFlags = {
-    isPreJoin: (phase: MeetingPhase) => phase === MeetingPhase.PRE_JOIN,
-    isJoining: (phase: MeetingPhase) => phase === MeetingPhase.JOINING,
-    isInCall: (phase: MeetingPhase) => phase === MeetingPhase.IN_CALL,
-  };
-  ```
-
-- Usage in component:
-
-  ```ts
-  import { MeetingPhaseFlags } from '@/shared/constants/meeting';
-
-  if (MeetingPhaseFlags.isJoining(phase)) {
-    ...
-  }
-  ```
-
-- Benefits:
-  - Centralized logic
-  - Avoid duplication
-  - Cleaner components
-  - Easier refactor when phase changes
+}
+```
 
 ---
 
-### 2. SVG/Icon usage
-- NEVER inline SVG directly in JSX:
-  `<svg>...</svg> ❌`
+## 6. SVG Icons
 
-- ALWAYS import icons as React components:
-  `import CopyIcon from '@/assets/icons/copy.svg?react';`
+All SVGs imported as React components via the `?react` suffix.
 
-- Then use like a normal component:
-  `<CopyIcon className="size-4" />`
+```ts
+// ✅
+import EyeOffIcon from '@/assets/icons/eye-off.svg?react';
+<EyeOffIcon className="w-4 h-4 text-muted-foreground" />
 
-- Benefits:
-  - Consistent styling
-  - Tree-shaking friendly
-  - Easier reuse
-  - Cleaner JSX
+// ❌
+<img src="/icons/eye-off.svg" />
+<svg>...</svg>  {/* inline */}
+```
+
+Rules:
+- Icons live under `@/assets/icons`
+- Size via Tailwind `w-*` / `h-*` or `size-*`
+- Color via `text-*` (SVG must use `currentColor`)
 
 ---
 
-### 3. General Principle
-- Prefer readability over brevity
-- Extract logic → avoid duplication
-- JSX should stay as clean and declarative as possible
+## 7. Styling
+
+### Priority Order
+1. **Tailwind utilities** — default for everything
+2. **SCSS** — only for complex animations, theming, 3rd-party overrides, reusable patterns
+
+### `index.css` — Directives & imports only
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './styles/variables.scss';
+@import './styles/global.scss';
+```
+
+### SCSS Structure
+```
+src/styles/
+  _variables.scss
+  _mixins.scss
+  global.scss
+  components/
+    _meeting.scss
+```
+
+Rules:
+- Partials prefixed with `_`
+- No scattered CSS files in feature folders
+- No inline `<style>` tags
+- No styling mixed with business logic
+
+---
+
+## 8. State Management
+
+| Scope | Tool |
+|---|---|
+| Local UI state | `useState` |
+| Complex local logic | `useReducer` |
+| Cross-tree sharing | `useContext` |
+| Server/async state | React Query or SWR |
+| Global app state | Redux Toolkit or Zustand |
+
+---
+
+## 9. Hooks & Effects
+
+- Always provide dependency arrays in `useEffect`
+- Always return cleanup functions where side effects exist
+- `useMemo` / `useCallback` only when profiling confirms a need — avoid premature optimization
+- Custom hooks for any logic used in 2+ components
+- Hooks only at top level — never inside conditions or loops
+
+---
+
+## 10. Data Fetching
+
+- React Query or SWR for all server state
+- Always handle `loading`, `error`, and `success` states explicitly
+- Cancel stale requests on unmount
+- Use optimistic updates for mutations
+- Gracefully handle offline/network failure scenarios
+
+---
+
+## 11. Error Handling
+
+- Error Boundaries for component-level failures
+- `try/catch` in all async effects and event handlers
+- Meaningful, user-facing error messages — never raw error objects
+- Log errors for observability (Sentry or equivalent)
+
+---
+
+## 12. Forms
+
+- React Hook Form as the default
+- Controlled inputs only
+- Validation on blur with debounce where UX requires
+- All inputs must have accessible labels and ARIA attributes
+
+---
+
+## 13. Performance
+
+- `React.memo` only when re-render cost is confirmed
+- `React.lazy` + `Suspense` for route-level code splitting
+- Virtual scrolling for lists > 100 items
+- Profile with React DevTools before optimizing
+
+---
+
+## 14. Accessibility
+
+- Semantic HTML always (`button`, `nav`, `main`, `section`, etc.)
+- ARIA attributes only when semantic HTML is insufficient
+- All interactive elements keyboard-navigable
+- Color contrast ratio ≥ 4.5:1 (WCAG AA)
+- `alt` text on all images; descriptive labels on icon-only buttons
+
+---
+
+## 15. Testing
+
+- React Testing Library for all component tests
+- Test behavior, not implementation details
+- Mock external dependencies and API calls
+- Cover: render, interaction, loading/error states, accessibility
+
+---
+
+## Anti-Patterns (Strictly Forbidden)
+
+| ❌ Pattern | ✅ Replacement |
+|---|---|
+| `phase === 'JOINING'` | `MeetingPhaseFlags.isJoining(phase)` |
+| `<span>Host</span>` | `<span>{t('meeting.role.host')}</span>` |
+| `<svg>...</svg>` inline | `import Icon from '...svg?react'` |
+| Raw `<h1>`, `<p>` in pages | `<Heading>`, `<Text>` components |
+| Inline style / `<style>` tag | Tailwind or SCSS module |
+| Copy-pasted Tailwind classes | Shared UI component |
+| `any` type | `unknown` + type narrowing |
+| Logic in layout components | Move to feature/container layer |

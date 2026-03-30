@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth';
-import { Heading, Text, Button, IconButton } from '@/components/ui';
+import { Heading, Text, Button, IconButton, UserAvatar } from '@/components/ui';
 import { Header } from '@/components/layout/Header';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
 import VideoAddIcon from '@/assets/icons/video-add.svg?react';
 import SettingsIcon from '@/assets/icons/settings.svg?react';
 import HelpCircleIcon from '@/assets/icons/help-circle.svg?react';
-import AccountCircleIcon from '@/assets/icons/account-circle.svg?react';
 import KeyboardIcon from '@/assets/icons/keyboard.svg?react';
 import ErrorCircleIcon from '@/assets/icons/error-circle.svg?react';
 import FaceIcon from '@/assets/icons/face.svg?react';
@@ -107,11 +106,11 @@ const StartMeetingPage = () => {
             </IconButton>
             <IconButton
               onClick={handleLogout}
-              className="bg-primary/10 text-primary hover:bg-primary/20 ml-2"
+              className="bg-transparent hover:bg-slate-200 ml-2 p-0.5"
               aria-label={t('meeting.start.logout')}
               title={`${user?.name} — ${t('meeting.start.logout')}`}
             >
-              <AccountCircleIcon className="w-6 h-6" />
+              <UserAvatar name={user?.name ?? ''} avatarUrl={user?.avatar} size="sm" />
             </IconButton>
           </>
         }

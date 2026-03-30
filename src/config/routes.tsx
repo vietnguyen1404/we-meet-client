@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import LoadingScreen from '@/components/loading/LoadingScreen';
 
 const LoginPage = lazy(() => import('@/features/auth/components/loginPage'));
+const OAuthCallbackPage = lazy(() => import('@/features/auth/components/OAuthCallbackPage'));
 const DashboardPage = lazy(() => import('@/features/auth/components/dashboardPage'));
 const ProtectedRoute = lazy(() => import('@/features/auth/components/protectedRoute'));
 const StartMeetingPage = lazy(() => import('@/features/meeting/components/startMeetingPage'));
@@ -18,6 +19,14 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<LoadingScreen />}>
         <LoginPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/auth/callback',
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <OAuthCallbackPage />
       </Suspense>
     ),
   },

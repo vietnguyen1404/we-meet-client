@@ -1,9 +1,11 @@
 import { cn } from '@/shared';
 import MicOffIcon from '@/assets/icons/mic-off.svg?react';
-import { getInitialsFromName, getAvatarColor } from '@/shared/utils/avatar';
+import { getAvatarColor } from '@/shared/utils/avatar';
+import { UserAvatar } from '@/components/ui';
 
 export interface ParticipantAvatarProps {
   displayName: string;
+  avatarUrl?: string | null;
   isMuted?: boolean;
   variant?: 'light' | 'dark';
   className?: string;
@@ -14,12 +16,13 @@ const PARTICIPANT_TILE_BG =
 
 export const ParticipantAvatar = ({
   displayName,
+  avatarUrl,
   isMuted = false,
   className,
 }: ParticipantAvatarProps) => {
-  const initials = getInitialsFromName(displayName);
   const avatarColor = getAvatarColor(displayName);
   const background = PARTICIPANT_TILE_BG;
+  const showImage = !!avatarUrl;
 
   return (
     <div
@@ -34,12 +37,12 @@ export const ParticipantAvatar = ({
     >
       <div
         className={cn(
-          'rounded-full flex items-center justify-center font-bold text-white',
+          'rounded-full flex items-center justify-center font-bold text-white overflow-hidden',
           'w-16 h-16 text-xl',
-          avatarColor,
+          !showImage && avatarColor,
         )}
       >
-        {initials}
+        <UserAvatar name={displayName} avatarUrl={avatarUrl} size="lg" className="w-full h-full" />
       </div>
 
       <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-black/60 text-white px-2 py-1 rounded-md max-w-[70%]">

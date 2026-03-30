@@ -31,6 +31,10 @@
     "termsOfService": "Terms of Service",
     "helpCenter": "Help Center",
     "errorInvalid": "Invalid email or password. Please try again.",
+    "errorAccessDenied": "Google sign-in was cancelled. Please try again.",
+    "errorServerError": "An error occurred with Google sign-in. Please try again.",
+    "errorAuthFailed": "Authentication failed. Please try again.",
+    "errorGeneric": "Sign-in failed. Please try again.",
     "hidePassword": "Hide password",
     "showPassword": "Show password"
   },

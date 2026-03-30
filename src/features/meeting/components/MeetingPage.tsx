@@ -251,6 +251,7 @@ const MeetingPage = () => {
         isLocal: true,
         isCameraOff: !isVideoEnabled,
         isMuted: !isAudioEnabled,
+        avatarUrl: user?.avatar,
       },
     ];
 
@@ -277,6 +278,7 @@ const MeetingPage = () => {
     remoteStreams,
     participants,
     user?.name,
+    user?.avatar,
     t,
     isVideoEnabled,
     isAudioEnabled,
@@ -289,7 +291,6 @@ const MeetingPage = () => {
     showToast.success(t('meeting.toast.roomIdCopied'), 'copy-room-id');
   };
 
-  // Show toast when media permission is denied or device not found
   const prevMediaErrorRef = useRef<string | null>(null);
   useEffect(() => {
     if (mediaError && mediaError !== prevMediaErrorRef.current) {
@@ -298,7 +299,6 @@ const MeetingPage = () => {
     prevMediaErrorRef.current = mediaError;
   }, [mediaError]);
 
-  // Show toast for WebRTC negotiation errors
   const prevNegotiationErrorsRef = useRef<Record<string, string | null>>({});
   useEffect(() => {
     for (const [peerId, message] of Object.entries(negotiationErrors)) {
