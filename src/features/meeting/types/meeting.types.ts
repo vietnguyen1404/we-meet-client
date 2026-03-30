@@ -158,6 +158,7 @@ export interface VideoTile {
   isMuted?: boolean;
   isCameraOff?: boolean;
   isLocal?: boolean;
+  avatarUrl?: string | null;
 }
 
 export interface UseRemoteStreamsReturn {

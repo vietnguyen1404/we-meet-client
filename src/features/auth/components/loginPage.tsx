@@ -1,13 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { env } from '@/config';
 import { Heading, Text, Button } from '@/components/ui';
 import LogoIcon from '@/assets/icons/logo.svg?react';
 import EyeIcon from '@/assets/icons/eye.svg?react';
 import EyeOffIcon from '@/assets/icons/eye-off.svg?react';
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?react';
 import SpinnerIcon from '@/assets/icons/spinner.svg?react';
+import GoogleIcon from '@/assets/icons/google.svg?react';
+
+const OAUTH_ERROR_KEY_MAP: Record<string, string> = {
+  access_denied: 'login.errorAccessDenied',
+  server_error: 'login.errorServerError',
+  auth_failed: 'login.errorAuthFailed',
+};
 
 const LoginPage = () => {
   const { t } = useTranslation();
@@ -19,6 +27,21 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [oauthError, setOauthError] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const errorCode = searchParams.get('error');
+    if (errorCode) {
+      const i18nKey = OAUTH_ERROR_KEY_MAP[errorCode] ?? 'login.errorGeneric';
+      setOauthError(t(i18nKey));
+
+      navigate('/login', { replace: true });
+    }
+    // Run only on mount — exhaustive-deps intentionally omitted
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +59,17 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleSignIn = () => {
+    if (!env.googleOAuthUrl) {
+      if (import.meta.env.DEV) console.warn('VITE_GOOGLE_OAUTH_URL is not configured.');
+      return;
+    }
+    setIsRedirecting(true);
+    window.location.href = env.googleOAuthUrl;
+  };
+
   const isLoading = isSubmitting || authLoading;
+  const isGoogleDisabled = isRedirecting || !env.googleOAuthUrl;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
@@ -48,6 +81,7 @@ const LoginPage = () => {
           <Heading level={1} className="text-2xl font-semibold text-gray-900">
             {t('login.title')}
           </Heading>
+          <Text className="text-sm text-gray-500 mt-2">{t('login.subtitle')}</Text>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -112,7 +146,10 @@ const LoginPage = () => {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div
+                role="alert"
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
+              >
                 {error}
               </div>
             )}
@@ -131,6 +168,36 @@ const LoginPage = () => {
               )}
             </Button>
           </form>
+          <div className="mt-6">
+            <div className="my-4 flex items-center">
+              <span className="flex-1 h-px bg-gray-200" />
+              <span className="px-3 text-sm text-gray-500">{t('login.orContinueWith')}</span>
+              <span className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            <Button
+              type="button"
+              size="lg"
+              aria-label={t('login.google')}
+              disabled={isGoogleDisabled}
+              className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGoogleSignIn}
+            >
+              <GoogleIcon className="w-4 h-4" aria-hidden />
+              <span className="text-black">
+                {isRedirecting ? t('common.loading') : t('login.google')}
+              </span>
+            </Button>
+
+            {oauthError && (
+              <div
+                role="alert"
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
+              >
+                {oauthError}
+              </div>
+            )}
+          </div>
         </div>
 
         <Text className="text-center text-sm text-gray-600 mt-6">

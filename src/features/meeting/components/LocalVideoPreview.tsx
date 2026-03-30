@@ -51,6 +51,7 @@ export const LocalVideoPreview = ({
         <ParticipantAvatar
           displayName={user?.name ?? t('meeting.lobby.you')}
           isMuted={!isMicrophoneOn}
+          avatarUrl={user?.avatar}
           className="flex-1"
         />
       ) : (

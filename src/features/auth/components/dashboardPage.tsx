@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
-import { Heading, Text, Button } from '@/components/ui';
+import { Heading, Text, Button, UserAvatar } from '@/components/ui';
 import { Header } from '@/components/layout/Header';
 
 const DashboardPage = () => {
@@ -19,9 +19,12 @@ const DashboardPage = () => {
       <Header
         actions={
           <>
-            <div className="text-right">
-              <Text className="text-sm font-medium text-gray-900">{user?.name}</Text>
-              <Text className="text-xs text-gray-500">{user?.email}</Text>
+            <div className="flex items-center gap-3">
+              <UserAvatar name={user?.name ?? ''} avatarUrl={user?.avatar} size="md" />
+              <div className="text-right">
+                <Text className="text-sm font-medium text-gray-900">{user?.name}</Text>
+                <Text className="text-xs text-gray-500">{user?.email}</Text>
+              </div>
             </div>
             <Button variant="secondary" size="sm" onClick={handleLogout}>
               {t('common.logout')}

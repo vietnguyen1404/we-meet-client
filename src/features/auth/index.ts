@@ -1,6 +1,7 @@
 export { default as LoginPage } from './components/loginPage';
 export { default as DashboardPage } from './components/dashboardPage';
 export { default as ProtectedRoute } from './components/protectedRoute';
+export { default as OAuthCallbackPage } from './components/OAuthCallbackPage';
 
 export { AuthProvider } from './context/authContext';
 export { useAuth } from './hooks/useAuth';
