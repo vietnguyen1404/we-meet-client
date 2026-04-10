@@ -46,4 +46,7 @@ lerna-debug.log*
 .temp
 .tmp
 
-
+# AI Agents
+.claude/
+CLAUDE.md
+.cursor/

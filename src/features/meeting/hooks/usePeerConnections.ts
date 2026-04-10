@@ -71,7 +71,16 @@ export const usePeerConnections = (
         );
       }
 
-      const pc = new RTCPeerConnection({ iceServers: [{ urls: stunUrl }] });
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: stunUrl },
+          {
+            urls: env.turnUrl,
+            username: env.turnUsername,
+            credential: env.turnCredential,
+          },
+        ],
+      });
 
       // Add local tracks and register senders
       if (stream !== null) {
